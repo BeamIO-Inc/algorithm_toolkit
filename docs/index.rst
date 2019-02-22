@@ -5,7 +5,7 @@ Welcome to the Algorithm Toolkit (ATK) documentation!
 =====================================================
 This project provides an easy way for researchers and developers to develop and share algorithms related to geospatial data and imagery.
 
-The source code for this project lives on `GitHub <https://github.com/BeamIO-Inc/algorithm-toolkit>`_.
+The source code for this project lives on `GitHub <https://github.com/BeamIO-Inc/algorithm_toolkit>`_.
 
 Contents
 --------

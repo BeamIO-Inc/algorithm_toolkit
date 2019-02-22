@@ -2,7 +2,7 @@
 
 We built the Algorithm Toolkit (ATK) to provide researchers and data anaysts the tools they need to process data quickly and efficiently, so they can focus on actually doing scientific or other analysis work.
 
-Please see this project's official documentation on Read The Docs. Below are instructions for how to install the ATK on your own system.
+Please see this project's official documentation on [Read The Docs](https://algorithm-toolkit.readthedocs.io/en/latest/index.html). Below are instructions for how to install the ATK on your own system.
 
 # Installation
 
