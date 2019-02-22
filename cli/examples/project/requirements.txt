@@ -1,0 +1,4 @@
+Pillow==5.0.0
+requests==2.18.4
+numpy==1.13.3
+Shapely==1.6.4.post1

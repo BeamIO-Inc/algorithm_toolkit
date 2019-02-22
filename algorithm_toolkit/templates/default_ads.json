@@ -1,0 +1,26 @@
+{
+    "ads": [
+        {
+            "ad_link_text": "Go there",
+            "ad_link_tooltip": "",
+            "ad_heading":
+            "Algorithm Marketplace",
+            "ad_link_url": "https://algorithmcentral.com",
+            "ad_content": "Installing the ATK is just the beginning. The Marketplace has hundreds of algorithms you can use in your project."
+        },
+        {
+            "ad_link_text": "Check it out",
+            "ad_link_tooltip": "",
+            "ad_heading": "TileDriver",
+            "ad_link_url": "https://tiledriver.com",
+            "ad_content": "Looking for an easy yet powerful way to manage and visualize geospatial data and imagery? Try our TileDriver cloud-based suite. A Basic plan with 5 layers and 2.5GB of storage is free."
+        },
+        {
+            "ad_link_text": "Learn more",
+            "ad_link_tooltip": "",
+            "ad_heading": "About BeamIO",
+            "ad_link_url": "https://beamio.net",
+            "ad_content": "The ATK was designed and built by BeamIO, an innovative data processing company."
+        }
+    ]
+}

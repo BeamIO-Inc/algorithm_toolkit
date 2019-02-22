@@ -1,0 +1,717 @@
+{% extends 'base.html' %}
+
+{% block title %}Create/Edit Algorithm{% endblock %}
+
+{% block headextra %}
+<link href="{{ url_for('static', filename='vendors/dragula/dragula.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+    <main role="main">
+      <div class="container">
+        <h1 class="display-4 text-center">Create/Edit an Algorithm</h1>
+        <p>&nbsp;</p>
+        {% if form.errors %}
+        <div class="row">
+            {% for field, errors in form.errors.items() %}
+                {% for error in errors %}
+                <div class="col-12 alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ form._fields.get(field).label }}: {{ error }}</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="row">
+          <div class="col-md-12">
+            <form method="POST" action="." id="algorithmForm">
+              {{ form.csrf_token }}
+              <div class="form-group row">
+                  {{ form.name.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {% if form.name in form.errors %}
+                          {% set field_class = field_class + ' is-invalid' %}
+                      {% endif %}
+                      {{ form.name(class=field_class, required=true) }}
+                      {% if form.name in form.errors %}
+                      <small class="invalid-feedback">Please provide a value</small>
+                      {% endif %}
+                      <small class="form-text text-muted">{{ form.name.description }}</small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.display_name.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {% if form.display_name in form.errors %}
+                          {% set field_class = field_class + ' is-invalid' %}
+                      {% endif %}
+                      {{ form.display_name(class=field_class, required=true) }}
+                      {% if form.display_name in form.errors %}
+                      <small class="invalid-feedback">Please provide a value</small>
+                      {% endif %}
+                      <small class="form-text text-muted">{{ form.display_name.description }}</small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.description.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {% if form.description in form.errors %}
+                          {% set field_class = field_class + ' is-invalid' %}
+                      {% endif %}
+                      {{ form.description(class=field_class) }}
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.version.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {% if form.version in form.errors %}
+                          {% set field_class = field_class + ' is-invalid' %}
+                      {% endif %}
+                      {{ form.version(class=field_class, required=true) }}
+                      {% if form.version in form.errors %}
+                      <small class="invalid-feedback">Please provide a value</small>
+                      {% endif %}
+                      <small class="form-text text-muted">{{ form.version.description }}</small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.homepage.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {% if form.homepage in form.errors %}
+                          {% set field_class = field_class + ' is-invalid' %}
+                      {% endif %}
+                      {{ form.homepage(class=field_class) }}
+                      <small class="form-text text-muted">{{ form.homepage.description }}</small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.private.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {{ form.private(class=field_class) }}
+                      <small class="form-text text-muted">{{ form.private.description }}</small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  {{ form.license.label(class="col-sm-2 control-label") }}
+                  <div class="col-sm-10">
+                      {% set field_class = 'form-control form-control-sm' %}
+                      {{ form.license(class=field_class) }}
+                      <small class="form-text text-muted">{{ form.license.description|urlize }}</small>
+                  </div>
+              </div>
+              {{ form.parameters }}
+              {{ form.outputs }}
+              {{ form.deleted_parameters }}
+              {{ form.deleted_outputs }}
+              <div class="container p-3 outputs-params">
+              <div class="text-center">
+                <h2>Algorithm Input Parameters:<button type="button" class="btn btn-outline-secondary btn-sm float-right mt-1" onclick="toggleForm('parameter', '', undefined)">Add a parameter</button></h2>
+                <table id="parametersTable" class="table table-sm text-left">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Required</th>
+                      <th scope-"col">&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody id="parameterTBody">
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-center">
+                <h2>Algorithm Outputs:<button type="button" class="btn btn-outline-secondary btn-sm float-right mt-1" onclick="toggleForm('output', '', undefined)">Add an output</button></h2>
+                <table id="outputsTable" class="table table-sm text-left">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Description</th>
+                      <th scope-"col">&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody id="outputTBody">
+                  </tbody>
+                </table>
+              </div>
+              </div>
+              <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary mt-2">Save Algorithm</button>  <a href="{{ url_for('home.algorithms') }}" class="btn btn-outline-primary mt-2" onclick="cancelAlgorithm()">Cancel</a><br />
+                {% if form.name.data %}{{ form.update_readme(class="mt-3") }} {{ form.update_readme.label }}{% endif %}
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <hr>
+
+      </div>
+    </main>
+    <div id="formDrawer">
+      <form id="parameterForm" data-parsley-validate="">
+      <h4 class="text-center"><span class="float-left pl-2 pt-1"><button type="button" class="close" aria-label="Close" onclick="cancelParamOutput('parameter')"><span aria-hidden="true"><i class="fas fa-times"></i></span></button></span><span class="createedit">Create</span> Input Parameter</h4>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.name.label }}
+              {% set field_class = 'form-control form-control-sm' %}
+              {{ p_form.name(class=field_class, required=true) }}
+              <small class="form-text text-muted">{{ p_form.name.description }}</small>
+          </div>
+      </div>
+      {{ p_form.original_name }}
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.required.label }}
+              {{ p_form.required(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.required.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.display_name.label }}
+              {{ p_form.display_name(class=field_class, required=true) }}
+              <small class="form-text text-muted">{{ p_form.display_name.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.description.label }}
+              {{ p_form.description(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.description.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.data_type.label }}
+              {{ p_form.data_type(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.data_type.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.field_type.label }}
+              {{ p_form.field_type(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.field_type.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.help_text.label }}
+              {{ p_form.help_text(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.help_text.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.min_value.label }}
+              {{ p_form.min_value(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.min_value.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.max_value.label }}
+              {{ p_form.max_value(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.max_value.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.default_value.label }}
+              {{ p_form.default_value(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.default_value.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.custom_validation.label }}
+              {{ p_form.custom_validation(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.custom_validation.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ p_form.parameter_choices.label }}
+              {{ p_form.parameter_choices(class=field_class) }}
+              <small class="form-text text-muted">{{ p_form.parameter_choices.description }}</small>
+          </div>
+      </div>
+      {{ p_form.sort_order }}
+      <div class="form-group text-center">
+          <button type="button" class="btn btn-primary" onclick="saveParameterOutput('parameter')">Save Parameter</button> <button type="button" class="btn btn-outline-secondary" onclick="cancelParamOutput('parameter')">Cancel</button>
+      </div>
+      </form>
+
+      <form id="outputForm" data-parsley-validate="">
+      <h4 class="text-center"><span class="float-left pl-2 pt-1"><button type="button" class="close" aria-label="Close" onclick="cancelParamOutput('output')"><span aria-hidden="true"><i class="fas fa-times"></i></span></button></span><span class="createedit">Create</span> Output</h4>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ o_form.name.label }}
+              {% set field_class = 'form-control form-control-sm' %}
+              {{ o_form.name(class=field_class, required=true) }}
+              <small class="form-text text-muted">{{ o_form.name.description }}</small>
+          </div>
+      </div>
+      {{ o_form.original_name }}
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ o_form.display_name.label }}
+              {{ o_form.display_name(class=field_class, required=true) }}
+              <small class="form-text text-muted">{{ o_form.display_name.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ o_form.description.label }}
+              {{ o_form.description(class=field_class) }}
+              <small class="form-text text-muted">{{ o_form.description.description }}</small>
+          </div>
+      </div>
+      <div class="form-group row justify-content-md-center">
+          <div class="col-sm-10">
+              {{ o_form.data_type.label }}
+              {{ o_form.data_type(class=field_class) }}
+              <small class="form-text text-muted">{{ o_form.data_type.description }}</small>
+          </div>
+      </div>
+      {{ o_form.sort_order }}
+      <div class="form-group text-center">
+          <button type="button" class="btn btn-primary" onclick="saveParameterOutput('output')">Save Output</button> <button type="button" class="btn btn-outline-secondary" onclick="cancelParamOutput('output')">Cancel</button>
+      </div>
+      </form>
+    </div>
+
+    <footer class="container">
+      <p>&copy; You {{ date.strftime('%Y') }}</p>
+    </footer>
+{% endblock %}
+{% block footextra %}
+<script src="{{ url_for('static', filename='vendors/dragula/dragula.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendors/parsley/parsley.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendors/parsley/comparison.js') }}"></script>
+<script>
+var pform = $('#parameterForm').parsley();
+var oform = $('#outputForm').parsley();
+
+var parameterNameList = [];
+var outputNameList = [];
+
+$(document).ready(function() {
+  addTableRows('parameter');
+  addTableRows('output');
+
+  $('[data-toggle="tooltip"]').tooltip();
+  dragula([document.getElementById('parameterTBody')]).on('drop', function() {
+    sortRows('parameter');
+  });
+  dragula([document.getElementById('outputTBody')]).on('drop', function() {
+    sortRows('output');
+  });
+
+  $('#algorithmForm input[name=name]').focus();
+});
+
+function addTableRows(i) {
+  var dataLoaded = $('#algorithmForm input[name=' + i + 's]').val();
+  if (dataLoaded != '') {
+    var dataList = JSON.parse(dataLoaded).sort(function(a,b) {
+      return parseInt(a.sort_order) - parseInt(b.sort_order);
+    });
+    for (x = 0; x < dataList.length; x++) {
+      addParameterOutputRow(dataList[x], i, undefined);
+    }
+  }
+}
+
+function addParameterOutputRow(obj, type, rowIndex) {
+  var tempRow = '<tr>';
+  tempRow += '  <td class="text-center"><span data-toggle="tooltip" data-placement="right" title="Click and drag to reorder rows"><i class="fas fa-grip-vertical order-rows"></i></span></td>';
+  tempRow += '  <td>' + obj.name + '</td>';
+  tempRow += '  <td>' + obj.description + '</td>';
+  if (type === 'parameter') {
+    tempRow += '  <td>' + (obj.required ? 'Yes' : 'No') + '</td>';
+  }
+  tempRow += '  <td class="text-center"><nobr><a id="editLink" href="#editLink" onclick="doToggle(this)" data-toggle="tooltip" data-placement="left" title="Edit this ' + type + '"><i class="fas fa-edit"></i></a>&nbsp;<a id="copyLink" onclick="copyRow(this, \'' + type + '\')" data-toggle="tooltip" data-placement="left" title="Make a copy of this ' + type + '"><i class="fas fa-copy"></i></a>&nbsp;<a id="deleteLink" onclick="deleteRow(this)" data-toggle="tooltip" data-placement="left" title="Delete this ' + type + '" class="text-danger"><i class="fas fa-trash"></i></a></nobr></td>';
+  tempRow += '</tr>';
+  if (!rowIndex) {
+    obj.sort_order = $('#' + type + 'TBody tr').length;
+    $('#' + type + 'sTable').append(tempRow);
+    $('#' + type + 'TBody tr:last').data('objectData', {objectType: type, objectData: obj});
+  } else {
+    obj.sort_order = parseInt(rowIndex - 1);
+    $('#' + type + 'TBody tr').eq(rowIndex - 1).replaceWith(tempRow);
+    $('#' + type + 'TBody tr').eq(rowIndex - 1).data('objectData', {objectType: type, objectData: obj});
+  }
+  if (type === 'parameter') {
+    parameterNameList.push(obj.name);
+  } else {
+    outputNameList.push(obj.name);
+  }
+}
+
+function sortRows(type) {
+  $('#' + type + 'TBody tr').each(function(i, val) {
+    $(this).data('objectData').objectData.sort_order = i;
+  });
+}
+
+function saveParameterOutput(formName) {
+  if (formName === 'parameter') {
+    var theForm = pform;
+  } else {
+    var theForm = oform;
+  }
+  var formObj = $(theForm)[0].element;
+
+  if (theForm.validate()) {
+    var tempObj = {};
+    $.each($(formObj)[0].elements, function() {
+      if (this.name != '') {
+        if (this.type === 'checkbox') {
+          tempObj[this.name] = this.checked;
+        } else {
+          tempObj[this.name] = this.value;
+        }
+      }
+    });
+
+    if (formName === 'parameter') {
+      if (tempObj['data_type'] === 'integer') {
+        tempObj['min_value'] = tempObj['min_value'] === '' ? null : parseInt(tempObj['min_value']);
+        tempObj['max_value'] = tempObj['max_value'] === '' ? null : parseInt(tempObj['max_value']);
+        tempObj['default_value'] = tempObj['default_value'] === '' ? null : parseInt(tempObj['default_value']);
+      } else if (tempObj['data_type'] === 'float') {
+        tempObj['min_value'] = tempObj['min_value'] === '' ? null : parseFloat(tempObj['min_value']);
+        tempObj['max_value'] = tempObj['max_value'] === '' ? null : parseFloat(tempObj['max_value']);
+        tempObj['default_value'] = tempObj['default_value'] === '' ? null : parseFloat(tempObj['default_value']);
+      }
+    }
+
+    if ($(formObj).data('rowIndex')) {
+      var rowIndex = $(formObj).data('rowIndex');
+      addParameterOutputRow(tempObj, formName, rowIndex);
+    } else {
+      addParameterOutputRow(tempObj, formName, undefined);
+    }
+
+    theForm.reset();
+    $(formObj).removeData('rowIndex');
+    toggleForm(formName, '', undefined);
+  }
+}
+
+$('#algorithmForm').submit(function(evt) {
+  var parameterVal = [];
+  $('#parameterTBody tr').each(function() {
+    parameterVal.push($(this).data('objectData').objectData);
+  });
+  $('#algorithmForm input[name=parameters]').val(JSON.stringify(parameterVal));
+
+  var outputVal = [];
+  $('#outputTBody tr').each(function() {
+    outputVal.push($(this).data('objectData').objectData);
+  });
+  $('#algorithmForm input[name=outputs]').val(JSON.stringify(outputVal));
+});
+
+function doToggle(obj) {
+  var thisRow = $(obj).parents('tr');
+  var data = thisRow.data('objectData');
+  toggleForm(data.objectType, data.objectData, thisRow[0].rowIndex);
+}
+
+function deleteRow(obj) {
+  $('[data-toggle="tooltip"]').tooltip('hide');
+  var thisRow = $(obj).parents('tr');
+  var thisType = thisRow.data().objectData.objectType;
+  var thisName = thisRow.data().objectData.objectData.name;
+  if (thisType === 'parameter') {
+    var tempVal = $('#algorithmForm input[name=deleted_parameters]').val();
+    if (tempVal != '') {
+      tempVal += ','
+    }
+    tempVal += thisName;
+    $('#algorithmForm input[name=deleted_parameters]').val(tempVal);
+  } else {
+    var tempVal = $('#algorithmForm input[name=deleted_outputs]').val();
+    if (tempVal != '') {
+      tempVal += ','
+    }
+    tempVal += thisName;
+    $('#algorithmForm input[name=deleted_outputs]').val(tempVal);
+  }
+  thisRow.remove();
+  sortRows(thisType);
+}
+
+function copyRow(obj, type) {
+  $('[data-toggle="tooltip"]').tooltip('hide');
+  var thisRow = $(obj).parents('tr');
+  var origObj = thisRow.data('objectData').objectData;
+  var origName = origObj.name;
+  var newName = origName + '_copy';
+
+  if (type === 'parameter') {
+    var allNames = parameterNameList;
+  } else {
+    var allNames = outputNameList;
+  }
+  var nameIdx = 0;
+  while (allNames.indexOf(newName) != -1) {
+    nameIdx ++;
+    newName = origName + '_copy' + nameIdx.toString();
+  }
+
+  var newObj = Object.assign({}, origObj);
+  newObj['name'] = newName;
+  addParameterOutputRow(newObj, type, undefined);
+}
+
+function toggleForm(form, data, rowIndex) {
+  var thisForm = '#' + form + 'Form';
+  if (data != '') {
+    $('.createedit').text('Edit');
+    $(thisForm).data('rowIndex', rowIndex);
+    for (key in data) {
+      if (data.hasOwnProperty(key)) {
+        var thisField = $(thisForm + ' :input#' + key);
+        var thisValue = data[key];
+        thisField.val(thisValue);
+        if (thisField.attr('type') === 'checkbox') {
+          if (thisValue === true) {
+            thisField.prop('checked', true);
+          } else {
+            thisField.prop('checked', false);
+          }
+        }
+      }
+    }
+  } else {
+    $('.createedit').text('Create');
+    $(thisForm)[0].reset();
+    $(thisForm).data('rowIndex', undefined);
+  }
+  selectFieldType(form, true);
+
+  if (form === 'parameter') {
+    if (parameterNameList.indexOf(data['name']) != -1) {
+      parameterNameList.splice(parameterNameList.indexOf(data['name']), 1);
+    }
+    $('#outputForm').hide();
+  } else if (form === 'output') {
+    if (outputNameList.indexOf(data['name']) != -1) {
+      outputNameList.splice(outputNameList.indexOf(data['name']), 1);
+    }
+    $('#parameterForm').hide();
+  }
+  $(thisForm).show();
+  $(thisForm + ' input[name=name]').focus();
+
+  if ($('#formDrawer').hasClass('open')) {
+    $('#formDrawer').animate({'right':'-40%'}).removeClass('open');
+    $('body').removeClass('noscroll');
+  } else {
+    $('#formDrawer').animate({'right':'0'}).addClass('open');
+    $('body').addClass('noscroll');
+  }
+  $('#formDrawer').scrollTop(0);
+}
+
+function selectFieldType(form, edit) {
+  dataType = $('#' + form + 'Form select[name=data_type]').val();
+  if (dataType === 'integer' || dataType === 'float') {
+    $('#' + form + 'Form select[name=field_type]').val('number');
+    $('#' + form + 'Form select[name=field_type] option[value=text]').hide();
+    $('#' + form + 'Form select[name=field_type] option[value=number]').show();
+  } else {
+    if (!edit) {
+      $('#' + form + 'Form select[name=field_type]').val('text');
+    }
+    $('#' + form + 'Form select[name=field_type] option[value=text]').show();
+    $('#' + form + 'Form select[name=field_type] option[value=number]').hide();
+  }
+}
+
+function cancelAlgorithm() {
+  if (confirm('Are you sure you want to cancel? All changes will be lost.')) {
+    location.href = "{{ url_for('home.algorithms') }}";
+  }
+}
+
+function cancelParamOutput(obj) {
+  if (confirm('Are you sure you want to cancel? All changes will be lost.')) {
+    toggleForm(obj, '', undefined);
+  }
+}
+
+window.Parsley.addValidator('intif', {
+  validateString: function (value, requirement) {
+    var req = $(requirement).val();
+    if (req === 'integer' || req === 'float') {
+      if (value === undefined) {
+        return true;
+      }
+      return !isNaN(parseFloat(value));
+    }
+  },
+  priority: 32
+});
+
+window.Parsley.addValidator('notin', {
+  validateString: function (value, requirement) {
+    if (requirement === 'parameter') {
+      return parameterNameList.indexOf(value) === -1;
+    } else {
+      return outputNameList.indexOf(value) === -1;
+    }
+  },
+  priority: 32
+});
+
+window.Parsley.addValidator('ifselect', {
+  validateString: function (value, requirement) {
+    var req = $(requirement).val();
+    if (req === 'select') {
+      return value.indexOf(',') != -1;
+    }
+  },
+  priority: 32
+});
+
+window.Parsley.addValidator('defaultinchoices', {
+  validateString: function (value, requirement) {
+    if ($(requirement).val()) {
+      var req = $(requirement).val().split(',');
+      var retVal = false;
+      for (var x = 0; x < req.length; x++) {
+        if (req[x].trim() === value) {
+          retVal = true;
+        }
+      }
+      return retVal;
+    } else {
+      return true;
+    }
+  },
+  priority: 32
+});
+
+window.Parsley.addValidator('choicestype', {
+  validateString: function (value, requirement) {
+    var req = $(requirement).val();
+    var retVal = true;
+    if ((req === 'integer' || req === 'float') && value != undefined && value != '') {
+      var tempArray = value.split(',');
+      for (var x = 0; x < tempArray.length; x++) {
+        if (isNaN(parseFloat(tempArray[x].trim()))) {
+          retVal = false;
+        }
+      }
+    }
+    return retVal;
+  },
+  priority: 32
+});
+</script>
+
+<style>
+#parameterForm {
+  display: none;
+}
+
+#outputForm {
+  display: none;
+}
+
+#deleteLink, #copyLink {
+  cursor: pointer;
+}
+
+#copyLink {
+  color: #007bff;
+}
+
+#copyLink:hover {
+  color: #0056b3;
+}
+
+#formDrawer {
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
+    top: 60px;
+    bottom: 20px;
+    right: -40%;
+    width: 40%;
+    padding: 1.5px;
+    list-style: none;
+    z-index: 9998;
+    overflow-y: scroll;
+}
+
+.noscroll {
+  overflow: hidden;
+}
+
+.outputs-params {
+  background-color: #ffffee;
+  border: 1px solid #ccc;
+}
+
+.order-rows {
+  cursor: move;
+}
+
+input.parsley-success,
+select.parsley-success,
+textarea.parsley-success {
+  color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+  border: 1px solid #28a745;
+}
+
+input.parsley-error,
+select.parsley-error,
+textarea.parsley-error {
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+input.parsley-error:focus,
+select.parsley-error:focus,
+textarea.parsley-error:focus {
+  border: 1px solid #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
+
+.parsley-errors-list {
+  margin: 2px 0 3px;
+  padding: 0;
+  list-style-type: none;
+  font-size: 80%;
+  line-height: 0.9em;
+  opacity: 0;
+  color: #dc3545;
+
+  transition: all .3s ease-in;
+  -o-transition: all .3s ease-in;
+  -moz-transition: all .3s ease-in;
+  -webkit-transition: all .3s ease-in;
+}
+
+.parsley-errors-list.filled {
+  opacity: 1;
+}
+</style>
+{% endblock %}

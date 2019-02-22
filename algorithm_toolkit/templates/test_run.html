@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+
+{% block title %}Test Client{% endblock %}
+
+{% block headextra %}
+        <link href="{{ url_for('static', filename='vendors/leaflet/leaflet.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+        <div class="container">
+            <h1 class="text-center">Enter parameters for each algorithm in the chain</h1>
+        </div>
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-md-10">
+                    {% if form.errors %}
+                    <div class="row">
+                        {% for field, errors in form.errors.items() %}
+                            {% for error in errors %}
+                            <div class="col-12 alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>{{ form._fields.get(field).label }}: {{ error }}</strong>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <form class="form" action="." method="POST">
+                        <div class="form-group row required">
+                            {{ form.api_key.label(class="col-sm-3 control-label required-label") }}
+                            <div class="col-sm-9">
+                                {% set field_class = 'form-control form-control-sm' %}
+                                {% if form.api_key.name in form.errors %}
+                                    {% set field_class = field_class + ' is-invalid' %}
+                                {% endif %}
+                                {{ form.api_key(class=field_class, required=true) }}
+                                {% if form.api_key.name in form.errors %}
+                                <small class="invalid-feedback">Please provide a value</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <h6 class="text-center">Fields marked with a * are required</h6>
+                    {% for a in a_list %}
+                        <h5>{{ a['display_name'] }}</h5>
+                        {% set ns = namespace(has_input=false) %}
+                        {% for rp in a['required_parameters'] %}
+                            {% if rp['field'] %}
+                            <div class="form-group row">
+                                {{ rp['field'].label(class="col-sm-3 control-label required-label") }}
+                                <div class="col-sm-9 pr-4">
+                                    {% set field_class = 'form-control form-control-sm' %}
+                                    {% if rp['field'].name in form.errors %}
+                                        {% set field_class = field_class + ' is-invalid' %}
+                                    {% endif %}
+                                    <span class="field-description" data-toggle="tooltip" data-placement="left" title="{{ rp['description'] }}"><i class="fas fa-info-circle"></i></span>{{ rp['field'](class=field_class) }}
+                                    {% if rp['field'].name in form.errors %}
+                                    <small class="invalid-feedback">Please provide a value</small>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ rp['help_text'] }}</small>
+                                </div>
+                            </div>
+                            {% set ns.has_input = true %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for op in a['optional_parameters'] %}
+                            {% if op['field'] %}
+                            <div class="form-group row">
+                                {{ op['field'].label(class="col-sm-3 control-label") }}
+                                <div class="col-sm-9 pr-4">
+                                    {% set field_class = 'form-control form-control-sm' %}
+                                    {% if op['field'].name in form.errors %}
+                                        {% set field_class = field_class + ' is-invalid' %}
+                                    {% endif %}
+                                    <span class="field-description" data-toggle="tooltip" data-placement="left" title="{{ op['description'] }}"><i class="fas fa-info-circle"></i></span>{{ op['field'](class=field_class) }}
+                                    {% if op['field'].name in form.errors %}
+                                    <small class="invalid-feedback">Error in field value</small>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ op['help_text'] }}</small>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% set ns.has_input = true %}
+                        {% endfor %}
+                        {% if not ns.has_input %}
+                            <p class="text-center"><em>No input needed.</em></p>
+                        {% endif %}
+                    {% endfor %}
+                        {{ form.csrf_token }}
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary">Run Algorithm Chain</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container" id="chainstatuswrapper">
+            <h4 class="text-center">Chain Status:<span class="status-spinner">Running <i class="fas fa-sync fa-spin"></i></span></h4>
+            <h6 class="mb-0">Algorithm Progress:</h6>
+            <div class="progress mb-2" style="height: 20px;">
+                <div id="algorithm-progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h6 class="mb-0">Chain Progress:</h6>
+            <div class="progress mb-2" style="height: 20px;">
+                <div id="chain-progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="chain-status-container" id="chainstatus"></div>
+        </div>
+        <div class="container" id="resultwrapper">
+            <h4 class="text-center">Chain Result:</h4>
+            <div id="mapid"></div>
+            <div id="textwrapper"></div>
+            <pre id="jsonwrapper"></pre>
+            <p><br /></p>
+        </div>
+<div class="modal" tabindex="-1" role="dialog" id="errormodal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="error-modal-title"></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="error-modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footextra %}
+    <script src="{{ url_for('static', filename='vendors/leaflet/leaflet.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendors/leaflet/leaflet.pm.css') }}" />
+    <script src="{{ url_for('static', filename='vendors/leaflet/leaflet.pm.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendors/marked/marked.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendors/downloadjs/download.js') }}"></script>
+    <style>
+        #mapid {
+            position: relative;
+            height: 600px;
+            width: 100%;
+            display: none;
+        }
+
+        #resultwrapper, #textwrapper, #jsonwrapper {
+            display: none;
+        }
+
+        #jsonwrapper {
+            background-color: #eee;
+            border: 1px solid #ccc;
+            padding: 15px;
+        }
+
+        .chain-status-container {
+            border: 2px solid #eee;
+            height: 200px;
+            position: relative;
+            padding: 10px;
+            margin-bottom: 20px;
+            overflow-y: scroll;
+        }
+
+        #chainstatuswrapper {
+            display: none;
+        }
+
+        .required-label {
+            font-weight: bold;
+        }
+
+        .required-label:after {
+            content: '*';
+        }
+
+        .status-spinner {
+            display: none;
+            font-style: italic;
+            font-size: 1rem;
+            position: absolute;
+            padding-top: 7px;
+            padding-left: 20px;
+        }
+
+        .status-spinner svg {
+            font-size: .75rem;
+        }
+
+        .field-description {
+            right: 0;
+            position: absolute;
+        }
+    </style>
+    <script>
+        var isRunning = false;
+        var httpChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        var csrf_token = "{{ csrf_token() }}";
+
+        function generateKey(keyLength) {
+            retVal = '';
+            for (x = 0; x < keyLength; x++) {
+                idx = Math.floor(Math.random() * (httpChars.length + 1));
+                retVal += httpChars.charAt(idx);
+            }
+            return retVal;
+        }
+
+        function toWKT(layer) {
+            var lng, lat, coords = [];
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                var latlngs = layer.getLatLngs();
+                if (layer instanceof L.Polygon) {
+                    latlngs = latlngs[0];
+                }
+                for (var i = 0; i < latlngs.length; i++) {
+                    latlngs[i]
+                    coords.push(latlngs[i].lng + " " + latlngs[i].lat);
+                    if (i === 0) {
+                        lng = latlngs[i].lng;
+                        lat = latlngs[i].lat;
+                    }
+                };
+                if (layer instanceof L.Polygon) {
+                    return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+                } else if (layer instanceof L.Polyline) {
+                    return "LINESTRING(" + coords.join(",") + ")";
+                }
+            } else if (layer instanceof L.Marker) {
+                return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
+            }
+        }
+
+    {% if fetching_results %}
+        var imageBounds = [];
+        var thisHost = location.host;
+        var thisProtocol = location.protocol;
+        var statusKey = generateKey(20);
+
+        var data = new FormData();
+        data.append('api_key', '{{ request.form["api_key"] }}');
+        data.append('chain', '{{ chain|tojson }}');
+        data.append('status_key', statusKey);
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+
+            var byteCharacters = atob(b64Data);
+            var byteArrays = [];
+
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNumbers);
+
+                byteArrays.push(byteArray);
+            }
+
+            var blob = new Blob(byteArrays, {type: contentType});
+            return blob;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', thisProtocol + '//' + thisHost + '/main/', true);
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        xhr.onload = function(evt) {
+            var error = false;
+            var resp;
+            isRunning = false;
+            try {
+                resp = JSON.parse(xhr.response);
+            }
+            catch {
+                resp = xhr.response;
+            }
+
+            if (xhr.status != 200) {
+                if (xhr.status != 500) {
+                    $('#error-modal-title').html('So, looks like we got problems...');
+                    var bodyStr;
+                    if (resp.error_list) {
+                        bodyStr = '<h5>The following parameters were rejected:</h5><ul>';
+                        for (var x = 0; x < resp.error_list.length; x++) {
+                            var item = resp.error_list[x];
+                            bodyStr += '<li>' + item.parameter + ': ' + item.error + '</li>';
+                        }
+                        bodyStr += '</ul>';
+                    } else if (resp.message) {
+                        bodyStr = resp.message;
+                    } else if (typeof resp === 'string' && resp.toLowerCase() === 'api key wrong or missing') {
+                        bodyStr = 'API key is incorrect. Please check the key and retry.';
+                    } else if (typeof resp === 'object') {
+                        bodyStr = JSON.stringify(resp);
+                    } else {
+                        bodyStr = resp;
+                    }
+                    $('#error-modal-body').html(bodyStr);
+                    $('#errormodal').modal();
+                    location.href = '#';
+                } else {
+                    var newDoc = document.open("text/html", "replace");
+                    newDoc.write(resp);
+                    newDoc.close();
+                }
+            } else {
+                $('#resultwrapper').show();
+                output_type = resp.output_type.toLowerCase();
+                if (output_type === 'geo_raster' || output_type === 'geojson') {
+                    $('#mapid').show();
+                    dL = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
+                        maxZoom: 24,
+                    });
+                    var mymap = new L.map('mapid', {
+                        zoomControl: true,
+                        zoom: 4,
+                        layers: [dL],
+                    });
+                    mymap.panTo([39.97712, -109.160156]);
+
+                    var options = {
+                        position: 'topleft',
+                        drawMarker: false,
+                        drawPolyline: false,
+                        drawRectangle: true,
+                        drawPolygon: true,
+                        drawCircle: false,
+                        cutPolygon: false,
+                        editMode: true,
+                        removalMode: true,
+                    };
+
+                    mymap.pm.addControls(options);
+
+                    mymap.pm.Draw.options.hintlineStyle = {
+                        color: 'blue',
+                        dashArray: '5,5'
+                    };
+
+                    mymap.on('pm:create', function(e) {
+                        var thisLayer = e.layer;
+                        wkt = toWKT(e.layer);
+                        thisLayer.bindPopup(wkt).openPopup();
+                        thisLayer.on('pm:edit', function(e) {
+                            wkt = toWKT(thisLayer);
+                            thisLayer.getPopup().setContent(wkt).openPopup();
+                        });
+                    });
+                    if (output_type === 'geo_raster') {
+                        var contentType = 'image/png';
+                        var blob = b64toBlob(resp.output_value.raster, contentType);
+                        var blobUrl = URL.createObjectURL(blob);
+
+                        imageBounds = JSON.parse(resp.output_value.extent);
+
+                        var overlay = L.imageOverlay(blobUrl, imageBounds);
+                        overlay.addTo(mymap);
+                        mymap.fitBounds(imageBounds);
+                    } else {
+                        var newlayer = L.geoJSON(resp.output_value).addTo(mymap);
+                        mymap.fitBounds(newlayer.getBounds());
+                    }
+                    location.href = '#mapid';
+                } else if (output_type === 'json') {
+                    $('#jsonwrapper').show();
+                    output = resp.output_value;
+                    $('#jsonwrapper').text(JSON.stringify(output, null, '    '));
+                    location.href = '#jsonwrapper';
+                } else if (output_type === 'csv') {
+                    $('#jsonwrapper').show();
+                    output = resp.output_value.data;
+                    $('#jsonwrapper').text(output);
+                    location.href = '#jsonwrapper';
+                } else if (output_type === 'binary') {
+                    output = resp.output_value;
+                    if (output.mimetype != '') {
+                        download('data:' + output.mimetype + ';base64,' + output.file, output.filename, output.mimetype);
+                    } else {
+                        alert('Mime type for file not provided');
+                    }
+                } else {
+                    $('#textwrapper').show();
+                    if (resp.output_value != '') {
+                        output = marked(resp.output_value);
+                    } else {
+                        output = resp.output_value;
+                    }
+                    $('#textwrapper').html(output);
+                    location.href = '#textwrapper';
+                }
+            }
+        };
+        xhr.send(data);
+
+        $('#chainstatuswrapper').show();
+        location.href = '#chainstatus';
+        var chainStatusVal = '';
+        var chainStatus = '';
+
+        isRunning = true;
+        var getChainStatus = setInterval(function() {
+            if (isRunning) {
+                $('.status-spinner').show();
+                var xhrChainStatus = new XMLHttpRequest();
+                xhrChainStatus.open('POST', thisProtocol + '//' + thisHost + '/chain_run_status/' + statusKey + '/', true);
+                xhrChainStatus.setRequestHeader("X-CSRFToken", csrf_token);
+
+                var statusData = new FormData();
+                statusData.append('api_key', '{{ request.form["api_key"] }}');
+
+                xhrChainStatus.onload = function(evt) {
+                    if (xhrChainStatus.status === 200) {
+                        var respStatus = JSON.parse(xhrChainStatus.response);
+                        if (chainStatusVal != respStatus.all_msg) {
+                            chainStatus = marked(respStatus.all_msg);
+                            $('#chainstatus').html(chainStatus);
+                            $('#chainstatus').scrollTop(document.getElementById('chainstatus').scrollHeight);
+
+                            $('#algorithm-progress-bar').css('width', respStatus.algorithm_percent_complete + '%');
+                            $('#algorithm-progress-bar').html(respStatus.algorithm_percent_complete + '%');
+
+                            $('#chain-progress-bar').css('width', respStatus.chain_percent_complete + '%');
+                            $('#chain-progress-bar').html(respStatus.chain_percent_complete + '%');
+                        }
+                        chainStatusVal = respStatus.all_msg;
+                    }
+                }
+                xhrChainStatus.send(statusData);
+            } else {
+                $('.status-spinner').hide();
+                clearInterval(getChainStatus);
+
+                $('#chainstatus').html(chainStatus + '\nChain run complete');
+
+                $('#algorithm-progress-bar').css('width', '100%');
+                $('#algorithm-progress-bar').html('100%');
+
+                $('#chain-progress-bar').css('width', '100%');
+                $('#chain-progress-bar').html('100%');
+            }
+        }, 1000);
+    {% endif %}
+    $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+{% endblock %}

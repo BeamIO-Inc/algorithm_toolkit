@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+
+{% block title %}Chain Builder{% endblock %}
+
+{% block headextra %}
+	<script src="{{ url_for('static', filename='vendors/blockly/blockly_compressed.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendors/blockly/en.js') }}"></script>
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+
+		table.full {
+			height: 100%;
+			width: 100%;
+		}
+
+		table.half {
+			width: 50%;
+		}
+
+		td.pad {
+			padding: 10px;
+		}
+
+		#blocklyArea {
+			height: 99%;
+			width: 99%;
+		}
+	</style>
+{% endblock %}
+
+{% block body %}
+	<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
+	  	{% for block in block_list %}
+	  	{{ block|safe }}
+	  	{% endfor %}
+	  	<sep gap="32"></sep>
+		<category name="User" colour="360">
+			<block type="user_input"></block>
+		</category>
+	</xml>
+
+	<table class="full">
+		<tr>
+			<td align="center" class="pad">
+				<h1>&nbsp;</h1>
+				<div class="form-inline justify-content-center">
+				<a href="javascript:newChain()" class="btn btn-primary"><i class="fa fa-plus"></i> New chain</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select class="form-control" id="chainSelect" onchange="selectChain()">
+					<option value="">Select a chain to view/edit</option>
+				</select>&nbsp;&nbsp;&nbsp;<a href="javascript:renameChain()" class="btn btn-outline-info btn-sm disabled" id="editchainnamebtn"><i class="fa fa-edit"></i> Edit name</a>&nbsp;&nbsp;&nbsp;<a href="javascript:deleteChain('reset')" class="btn btn-outline-danger btn-sm disabled" id="deletechainbtn"><i class="fa fa-trash"></i> Delete chain</a>&nbsp;&nbsp;&nbsp;<span id="chainsavespinner" style="display: none; position: absolute"></span>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td id="blocklyArea"></td>
+		</tr>
+	</table>
+
+	<div id="workspace" style="position: absolute"></div>
+{% endblock %}
+
+{% block footextra %}
+<script src="{{ url_for('static', filename='vendors/blockly/workspace.js') }}"></script>
+<script>
+{% for script in block_scripts %}
+{{ script|safe }}
+{% endfor %}
+
+Blockly.Blocks['user_input'] = {
+  init: function() {
+	this.appendDummyInput()
+		.appendField("User input");
+	this.setOutput(true, null);
+	this.setColour(360);
+	this.setTooltip("");
+	this.setHelpUrl("");
+	this.data = "input";
+  }
+};
+
+var chainObject = JSON.parse('{{ chain_obj|safe }}');
+Object.keys(chainObject).forEach(function(alg) {
+	$('#chainSelect').append($('<option>', {
+		value: alg,
+		text: alg
+	}));
+});
+
+var thisChain = '';
+var chainSaved = true;
+var thisHost = location.host;
+var thisProtocol = location.protocol;
+var csrf_token = "{{ csrf_token() }}";
+
+function newChain() {
+	if (chainSaved) {
+		if (thisChain != '') {
+			workspace.clear();
+			thisChain = '';
+		}
+		thisChain = nameChain();
+		if (thisChain === null) {
+			thisChain = '';
+			workspace.clear();
+			chainSaved = true;
+			return false;
+		} else {
+			$('#chainSelect').append($('<option>', {
+				value: thisChain,
+				text: thisChain
+			})).val(thisChain);
+			$('#editchainnamebtn').removeClass('disabled');
+			$('#deletechainbtn').removeClass('disabled');
+			chainSaved = false;
+		}
+	} else {
+		alert('Chain has not been saved. Make sure that you complete the chain before trying to create a new one. That includes filling out all the inputs.')
+	}
+}
+
+function addAlgorithmToChain(block) {
+	var topInputs = block.inputList;
+	var allUser = true;
+	var newAlg = {};
+	var newParams = {};
+
+	newAlg['algorithm'] = block.type;
+
+	for (var x = 0; x < topInputs.length; x++) {
+		var tempIn = topInputs[x];
+		if (tempIn.type === 1) {
+			var tempSourceBlock = tempIn.connection.targetConnection.sourceBlock_;
+			var tempType = tempSourceBlock.type;
+			if (tempType != 'user_input') {
+				allUser = false;
+				var tempSourceAlg = tempType.substring(0, tempType.indexOf('__'));
+				var tempKey = tempType.substring(tempType.indexOf('__') + 2);
+				var tempOccurence = tempSourceBlock.inputList[1].fieldRow[1].value_;
+				newParams[tempIn.name] = {
+					"source": "chain_ledger",
+					"source_algorithm": tempSourceAlg,
+					"key": tempKey,
+					"occurrence": tempOccurence
+				}
+			}
+		}
+	}
+	if (allUser) {
+		newAlg['parameter_source'] = 'user'
+	} else {
+		newAlg['parameters'] = newParams;
+	}
+	return newAlg;
+}
+
+function nameChain() {
+	while (true) {
+		var chain = prompt('Give your chain a name:');
+		if (chain in chainObject) {
+			alert("That name already exists. Please enter a different one.");
+		} else if (!chain) {
+			return null;
+			break;
+		} else if (chain === '') {
+			alert("Please give your chain a name.");
+		} else {
+			break;
+		}
+	}
+	return chain.split(' ').join('_').toLowerCase();
+}
+
+function renameChain() {
+	if (thisChain != '') {
+		var tempName = nameChain();
+		if (tempName === null) {
+			return false;
+		} else {
+			deleteChain('rename');
+			generateChain();
+		}
+	}
+}
+
+function deleteChain(action) {
+	if (thisChain != '') {
+		if (action === 'reset') {
+			if (!confirm('Are you sure you want to delete this chain?')) {
+				return false;
+			}
+		}
+		$('#chainSelect option:selected').remove();
+		delete chainObject[thisChain];
+		thisChain = '';
+		saveChains();
+		if (action === 'reset') {
+			workspace.clear();
+			$('#chainSelect').val('');
+    		$('#editchainnamebtn').addClass('disabled');
+	    	$('#deletechainbtn').addClass('disabled');
+		}
+	}
+}
+
+function generateChain() {
+	if (thisChain === '') {
+		if (workspace.getAllBlocks().length === 0) {
+			chainSaved = true;
+			return false;
+		}
+		chainSaved = true;
+		newChain();
+	}
+
+	var algs = [];
+
+	aB = workspace.getAllBlocks();
+
+	if (aB.length > 0 && workspace.allInputsFilled()) {
+		for (var x = 0; x < aB.length; x++) {
+			var newBlock = aB[x];
+			if (newBlock.data === 'algorithm') {
+				algs.push(addAlgorithmToChain(newBlock));
+			}
+		}
+		chainObject[thisChain] = algs;
+		saveChains();
+	} else {
+		//do nothing
+	}
+}
+
+function selectChain(evt) {
+	if (!chainSaved) {
+		alert('This chain has not been saved.');
+		$('#chainSelect').val(thisChain);
+		return false;
+	}
+	thisChain = $('#chainSelect').val();
+	workspace.clear();
+	if (thisChain != '') {
+	    var xhr = new XMLHttpRequest();
+	    xhr.open('GET', thisProtocol + '//' + thisHost + '/chain_builder/get_blocks/' + thisChain + '/', true);
+	    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+	    xhr.onload = function(evt) {
+	    	var workspaceBlocks = Blockly.Xml.textToDom(xhr.response);
+	    	try {
+		    	Blockly.Xml.domToWorkspace(workspaceBlocks, workspace);
+	    	}
+	    	catch(error) {
+	    		console.log(error);
+	    	}
+	    	$('#editchainnamebtn').removeClass('disabled');
+	    	$('#deletechainbtn').removeClass('disabled');
+	    };
+	    xhr.send();
+	} else {
+    	$('#editchainnamebtn').addClass('disabled');
+    	$('#deletechainbtn').addClass('disabled');
+	}
+}
+
+function chainChange(event) {
+	if (event.type === 'move' || event.type === 'change' || event.type === 'delete') {
+		chainSaved = false;
+		generateChain();
+	}
+}
+
+function saveChains() {
+	$('#chainsavespinner').html('<i class="fa fa-spinner fa-pulse"></i> Saving chains...');
+	$('#chainsavespinner').show();
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', thisProtocol + '//' + thisHost + '/chain_builder/update_chains/', true);
+	var data = new FormData();
+	data.append('chains', JSON.stringify(chainObject));
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+	xhr.onload = function(evt) {
+		if (xhr.status != 200) {
+			alert('Problem saving chains: ' + xhr.response);
+		} else {
+			chainSaved = true;
+			$('#testRunContainer').html(xhr.response);
+		}
+		$('#chainsavespinner').html('Chains saved!');
+		$('#chainsavespinner').fadeOut(800);
+	}
+	xhr.send(data);
+}
+
+function addUserBlock() {
+	var userBlock = workspace.newBlock('user_input');
+	userBlock.initSvg();
+	userBlock.render();
+	return userBlock;
+}
+
+workspace.addChangeListener(chainChange);
+
+window.addEventListener('keypress', function(evt) {
+    if (evt.key === 'u') {
+    	selectedBlock = Blockly.selected;
+    	if (selectedBlock != null) {
+    		if (!selectedBlock.allInputsFilled()) {
+	    		selectedBlock.inputList.forEach(function(elem) {
+	    			if (elem.type === 1 && !elem.connection.isConnected()) {
+	    				var tempBlock = addUserBlock();
+	    				elem.connection.connect(tempBlock.outputConnection);
+	    			}
+	    		});
+    		}
+    	} else {
+    		addUserBlock();
+    	}
+    }
+});
+</script>
+<style>
+body {
+	padding-top: 0 !important;
+}
+</style>
+{% endblock %}

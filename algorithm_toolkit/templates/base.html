@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Algorithm Toolkit: {% block title %}{% endblock %}</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link href="{{ url_for('static', filename='vendors/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='favicon.png') }}" rel="shortcut icon">
+        <script defer src="{{ url_for('static', filename='vendors/fontawesome/all.min.js') }}"></script>
+        {% block headextra %}
+        {% endblock %}
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+          <a class="navbar-brand" data-badge="BETA" href="/">Algorithm Toolkit</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#atkNavbar" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="atkNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item{% if nav == 'index' %} active{% endif %}">
+                <a class="nav-link" href="{{ url_for('home.index') }}">Project Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item{% if nav == 'algorithms' %} active{% endif %}">
+                <a class="nav-link" href="{{ url_for('home.algorithms') }}">Algorithms</a>
+              </li>
+              <li class="nav-item{% if nav == 'chain_builder' %} active{% endif %}">
+                <a class="nav-link" href="{{ url_for('home.chain_builder') }}">Chain Builder</a>
+              </li>
+              {% if docs %}<li class="nav-item{% if nav == 'docs' %} active{% endif %}">
+                <a class="nav-link" href="{{ url_for('home.show_docs', filename='index.html') }}">Documentation</a>
+              </li>{% endif %}
+              <li class="nav-item dropdown{% if nav == 'test_run' %} active{% endif %}">
+                <a class="nav-link dropdown-toggle" href="http://example.com" id="testRunDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Test Run</a>
+                <div class="dropdown-menu" id="testRunContainer" aria-labelledby="testRunDrop">
+                    {% for c in chains %}
+                    <a class="dropdown-item" href="{{ url_for('home.test_run', chain_name=c) }}">{{ c }}</a>
+                    {% endfor %}
+                </div>
+              </li>
+            </ul>
+          {% block navextra %}
+          {% endblock %}
+          </div>
+        </nav>
+        {% if show_notice %}
+        {% include 'show_notice.html' %}
+        {% endif %}
+
+        {% block body %}
+        {% endblock %}
+    </body>
+    <script src="{{ url_for('static', filename='vendors/jquery/jquery-3.2.1.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='vendors/bootstrap/js/bootstrap.min.js') }}"></script>
+    {% block footextra %}
+    {% endblock %}
+    <script>
+    $(document).ready(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $('#atknotice').on('close.bs.alert', function() {
+      $.ajax({
+        url: '/dismiss_notice/'
+      }).done(function() {
+        $('#noticerow').hide();
+      });
+    });
+    </script>
+    <style>
+    body {
+      padding-top: 3.5rem;
+    }
+
+    .navbar-brand {
+      position: relative;
+    }
+
+    .navbar-brand[data-badge]:after {
+      position:absolute;
+      left: 95%;
+      top: 0%;
+      content: attr(data-badge);
+      font-size: 20%;
+      padding: .3em;
+      border-radius: 0px;
+      line-height: .75em;
+      color: white;
+      background: rgba(255,0,0,.85);
+      text-align: center;
+      min-width: 2em;
+      font-weight: bold;
+    }
+
+    .atk-notice {
+      background-color: #007bff;
+      background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+      background-size:  2rem 2rem;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .atk-notice .alert a {
+      color: #fff;
+    }
+
+    .atk-notice .alert {
+      margin-bottom: 0;
+      border-radius: 0;
+      border: none;
+    }
+
+    .atk-notice .alert .close {
+      color: #fff;
+      opacity: 1;
+    }
+
+    .atk-notice .alert .close:hover {
+      color: #ccc;
+      opacity: 1;
+      text-shadow: 0 1px 0 #ccc;
+    }
+    </style>
+</html>

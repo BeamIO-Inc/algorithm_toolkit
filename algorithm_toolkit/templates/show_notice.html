@@ -1,0 +1,10 @@
+<div class="row" id="noticerow">
+    <div class="col-12 atk-notice text-center">
+        <div id="atknotice" class="alert alert-dismissable fade show" role="alert">
+            {% if show_notice.ad_link_url %}<a href="{{ show_notice.ad_link_url }}">{% endif %}{{ show_notice.ad_content }}{% if show_notice.ad_link_url %}</a>{% endif %}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>

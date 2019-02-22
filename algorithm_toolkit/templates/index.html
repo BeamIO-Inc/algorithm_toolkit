@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block body %}
+
+    <main role="main">
+	  <div class="jumbotron">
+		<div class="container">
+		  	<h1 class="display-3">It's Working!</h1>
+		  	<p>Congratulations! You created an Algorithm Toolkit (ATK) project. This web browser interface can help you navigate your project and make changes to it; however, you're free to modify source files or use the CLI directly if you prefer.</p>
+		  	<h2>Where to go from here?</h2>
+		  	<p>Now that you are up and running, here are a few things you might do next:</p>
+		  	<ul>
+		  		<li><a href="#">Create a new algorithm</a></li>
+		  		<li><a href="{{ url_for('home.chain_builder') }}">Create a new chain of algorithms, or make changes to an existing one</a></li>
+		  		{% if docs %}<li><a href="{{ url_for('home.show_docs', filename='index.html') }}">Brush up on the documentation</a></li>{% endif %}
+		  	</ul>
+		  	<p>If you built this using the example project, or if you have created your own algorithm chains, you can use the "Test Run" menu at the top of this page to try them out.</p>
+		</div>
+	  </div>
+{% include 'ad_include.html' %}
+
+		<hr>
+
+	  </div>
+	</main>
+
+	<footer class="container">
+	  <p>&copy; You {{ date.strftime('%Y') }}<span class="float-right"><a href="/shutdown/" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="Shut down development server"><i class="fas fa-stop"></i></a></span></p>
+	</footer>
+{% endblock %}
+{% block footextra %}
+<script>
+$(document).ready(function() {
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock %}

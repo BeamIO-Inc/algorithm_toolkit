@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Algorithms{% endblock %}
+
+{% block body %}
+
+    <main role="main">
+      <div class="container">
+        <h1 class="display-4 text-center">Algorithms in this project</h1>
+        <p class="text-center"><a href="{{ url_for('home.create_algorithm') }}" class="btn btn-primary btn-lg">Create a new algorithm</a></p>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="accordion" id="algAccordion">
+              {% for alg in algs %}
+              <div class="card">
+                <div class="card-header" id="heading{{ loop.index }}">
+                  <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                      {{ alg['name'] }}
+                    </button>
+                  <span class="float-right"><a data-toggle="tooltip" title="Edit this algorithm" href="{{ url_for('home.create_algorithm', algorithm=alg['name']) }}" class="btn btn-outline-primary btn-sm">Edit</a> <a data-toggle="tooltip" title="Copy this algorithm" href="{{ url_for('home.copy_algorithm', algorithm=alg['name']) }}" class="btn btn-outline-secondary btn-sm">Copy</a> <a data-toggle="tooltip" title="Delete this algorithm" href="javascript:deleteAlgorithm('{{ url_for('home.delete_algorithm', algorithm=alg['name']) }}')" class="btn btn-outline-danger btn-sm">Delete</a></span></h5>
+                </div>
+
+                <div id="collapse{{ loop.index }}" class="collapse" aria-labelledby="heading{{ loop.index }}" data-parent="#algAccordion">
+                  <div class="card-body">
+                    <h5>{{ alg['display_name'] }}</h5>
+                    <p>{{ alg['description'] }}</p>
+                    <p>Version: {{ alg['version'] }}<br />
+                    License: {{ alg['license'] }}<br />
+                    Homepage: {{ alg['homepage']|urlize }}</p>
+                    <h6>Parameters:</h6>
+                    <table class="table table-sm table-bordered">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Description</th>
+                          <th scope="col">Required</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for rp in alg['required_parameters'] %}
+                          <tr>
+                            <td>{{ rp['name'] }}</td>
+                            <td>{{ rp['description'] }}</td>
+                            <td>Yes</td>
+                          </tr>
+                        {% endfor %}
+                        {% for op in alg['optional_parameters'] %}
+                          <tr>
+                            <td>{{ op['name'] }}</td>
+                            <td>{{ op['description'] }}</td>
+                            <td></td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <h6>Outputs:</h6>
+                    <table class="table table-sm table-bordered">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for out in alg['outputs'] %}
+                          <tr>
+                            <td>{{ out['name'] }}</td>
+                            <td>{{ out['description'] }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+      </div>
+    </main>
+    <footer class="container">
+      <p>&copy; You {{ date.strftime('%Y') }}</p>
+    </footer>
+{% endblock %}
+
+{% block footextra %}
+<script>
+  function deleteAlgorithm(url) {
+    if (confirm('Are you sure you want to delete this algorithm?')) {
+      location.href = url;
+    }
+  }
+
+  $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
+<style>
+.card {
+  border-radius: 0;
+  border-bottom: 0;
+}
+</style>
+{% endblock %}
