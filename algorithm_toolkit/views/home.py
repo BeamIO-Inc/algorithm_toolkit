@@ -63,7 +63,7 @@ def get_notice(r):
         response = requests.get(
             app.config['TILEDRIVER_URL'] + 'ads/atk_notice/')
         if response.status_code == 200:
-            notice = json.loads(response.content)['ads'][0]
+            notice = json.loads(response.content.decode('utf-8'))['ads'][0]
             if notice['ad_content'] == 'empty':
                 notice = None
 
@@ -91,7 +91,7 @@ def index():
         default_ads = default_obj['ads']
 
     if response.status_code == 200:
-        ad_object = json.loads(response.content)
+        ad_object = json.loads(response.content.decode('utf-8'))
         ads = ad_object['ads']
         if len(ads) < 3:
             ads = ads + default_ads
