@@ -122,7 +122,7 @@ The ATK comes with an example project to help you understand how it works.
 Prerequisites
 -------------
 
-The example project requires `NumPy <http://www.numpy.org/>`_ in order to work. If you're on a Linux machine, you can install the example project and it will handle this dependency for you.
+The example project has some additional dependencies, including `NumPy <http://www.numpy.org/>`_, in order to work. If you're on a Linux machine, you can install the example project and it will handle this dependency for you.
 
 However, if you're on a Mac or Windows machine, installing NumPy is more complicated.
 
@@ -134,11 +134,11 @@ For these operating systems, we highly recommend using Anaconda or it's smaller 
     - `Anaconda installation Page <https://www.anaconda.com/download/#linux>`_
     - `Miniconda installation Page <https://docs.conda.io/en/latest/miniconda.html>`_
 
-Once Anaconda is installed, you can set up the example project right away. If you decide to use Miniconda, first do the following:
+Once Anaconda or Miniconda is installed do the following:
 
 .. code-block:: bash
 
-    conda install numpy
+    conda install Pillow requests numpy Shapely
 
 Install the example project
 ---------------------------
