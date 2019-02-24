@@ -29,9 +29,9 @@
               <li class="nav-item{% if nav == 'chain_builder' %} active{% endif %}">
                 <a class="nav-link" href="{{ url_for('home.chain_builder') }}">Chain Builder</a>
               </li>
-              {% if docs %}<li class="nav-item{% if nav == 'docs' %} active{% endif %}">
-                <a class="nav-link" href="{{ url_for('home.show_docs', filename='index.html') }}">Documentation</a>
-              </li>{% endif %}
+              <li class="nav-item{% if nav == 'docs' %} active{% endif %}">
+                {% if docs %}<a class="nav-link" href="{{ url_for('home.show_docs', filename='index.html') }}">{% else %}<a class="nav-link" href="https://algorithm-toolkit.readthedocs.io/en/latest/" target="new">{% endif %}Documentation</a>
+              </li>
               <li class="nav-item dropdown{% if nav == 'test_run' %} active{% endif %}">
                 <a class="nav-link dropdown-toggle" href="http://example.com" id="testRunDrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Test Run</a>
                 <div class="dropdown-menu" id="testRunContainer" aria-labelledby="testRunDrop">

@@ -47,7 +47,7 @@
 			<td align="center" class="pad">
 				<h1>&nbsp;</h1>
 				<div class="form-inline justify-content-center">
-				<a href="javascript:newChain()" class="btn btn-primary"><i class="fa fa-plus"></i> New chain</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select class="form-control" id="chainSelect" onchange="selectChain()">
+				<a href="javascript:newChain(null)" class="btn btn-primary"><i class="fa fa-plus"></i> New chain</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select class="form-control" id="chainSelect" onchange="selectChain()">
 					<option value="">Select a chain to view/edit</option>
 				</select>&nbsp;&nbsp;&nbsp;<a href="javascript:renameChain()" class="btn btn-outline-info btn-sm disabled" id="editchainnamebtn"><i class="fa fa-edit"></i> Edit name</a>&nbsp;&nbsp;&nbsp;<a href="javascript:deleteChain('reset')" class="btn btn-outline-danger btn-sm disabled" id="deletechainbtn"><i class="fa fa-trash"></i> Delete chain</a>&nbsp;&nbsp;&nbsp;<span id="chainsavespinner" style="display: none; position: absolute"></span>
 				</div>
@@ -94,13 +94,17 @@ var thisHost = location.host;
 var thisProtocol = location.protocol;
 var csrf_token = "{{ csrf_token() }}";
 
-function newChain() {
+function newChain(name) {
 	if (chainSaved) {
 		if (thisChain != '') {
 			workspace.clear();
 			thisChain = '';
 		}
-		thisChain = nameChain();
+		if (name === null || name === '') {
+			thisChain = nameChain();
+		} else {
+			thisChain = name;
+		}
 		if (thisChain === null) {
 			thisChain = '';
 			workspace.clear();
@@ -156,20 +160,26 @@ function addAlgorithmToChain(block) {
 }
 
 function nameChain() {
-	while (true) {
-		var chain = prompt('Give your chain a name:');
+	var chain = null;
+	while (chain === null) {
+		chain = prompt('Give your chain a name:');
+		if (!chain) {
+			return null;
+		}
+		chain = chain.split(' ').join('_').toLowerCase();
 		if (chain in chainObject) {
 			alert("That name already exists. Please enter a different one.");
+			chain = null;
 		} else if (!chain) {
 			return null;
-			break;
 		} else if (chain === '') {
 			alert("Please give your chain a name.");
+			chain = null;
 		} else {
-			break;
+			return chain;
 		}
 	}
-	return chain.split(' ').join('_').toLowerCase();
+	return chain;
 }
 
 function renameChain() {
@@ -179,7 +189,7 @@ function renameChain() {
 			return false;
 		} else {
 			deleteChain('rename');
-			generateChain();
+			generateChain(tempName);
 		}
 	}
 }
@@ -204,14 +214,14 @@ function deleteChain(action) {
 	}
 }
 
-function generateChain() {
+function generateChain(name) {
 	if (thisChain === '') {
 		if (workspace.getAllBlocks().length === 0) {
 			chainSaved = true;
 			return false;
 		}
 		chainSaved = true;
-		newChain();
+		newChain(name);
 	}
 
 	var algs = [];
@@ -265,7 +275,7 @@ function selectChain(evt) {
 function chainChange(event) {
 	if (event.type === 'move' || event.type === 'change' || event.type === 'delete') {
 		chainSaved = false;
-		generateChain();
+		generateChain(thisChain);
 	}
 }
 

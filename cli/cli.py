@@ -429,7 +429,8 @@ def publish_algorithm_cmd(algorithm_name, registry):
         return click.echo('There was a problem publishing this algorithm')
 
     if req.status_code != 200:
-        return click.echo('There was a problem publishing this algorithm')
+        return click.echo(
+            'There was a problem publishing this algorithm: ' + req.content)
     click.echo(req.text)
 
 
