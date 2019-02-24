@@ -11,7 +11,7 @@ Python projects should be installed in virtual environments in order to keep ver
 
 .. code-block:: bash
 
-    pip install algorithm-toolkit
+    pip install algorithm_toolkit
     alg cp myproject
     cd myproject
     alg run
@@ -76,7 +76,7 @@ Setting up your ATK project
 
 .. code-block:: bash
 
-    pip install algorithm-toolkit
+    pip install algorithm_toolkit
     alg cp myproject
     cd myproject
     alg run
@@ -90,7 +90,7 @@ Let's walk through this line by line.
 
 .. code-block:: bash
 
-    pip install algorithm-toolkit
+    pip install algorithm_toolkit
 
 The ATK lives on `PyPi <https://pypi.org/>`_, so this line downloads and installs the ATK in your virtual environment. Several dependencies will be installed as well.
 
