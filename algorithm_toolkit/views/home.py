@@ -630,6 +630,7 @@ def chain_builder():
     drop_str += ']), "occurrence");'
 
     algpath = os.path.join(path, 'algorithms')
+
     for root, dirs, files in os.walk(algpath):
         for algdir in dirs:
             parent = root[root.rfind(os.sep) + 1:]
@@ -649,7 +650,14 @@ def chain_builder():
                 used_colours.append(this_colour)
                 this_colour = str(this_colour)
 
-                this_block = '<category name="' + temp_display
+                this_block = ''
+
+                this_block += '<category name="'
+                if '/' in temp_name:
+                    this_block += temp_name.split('/')[0] + '/'
+                else:
+                    this_block += ' '
+                this_block += temp_display
                 this_block += '" colour="' + this_colour + '">\n'
                 this_block += '    <block type="' + temp_name
                 this_block += '"></block>\n'
@@ -718,6 +726,7 @@ def chain_builder():
                         this_script += 'this.data = "input";} };\n'
 
                 this_block += '</category>'
+
                 block_list.append(this_block)
                 block_scripts.append(this_script)
 
