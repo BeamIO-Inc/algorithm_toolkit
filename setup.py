@@ -1,10 +1,23 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
-    name='algorithm_toolkit',
-    packages=['algorithm_toolkit'],
+    author="BeamIO, Inc.",
+    author_email="info@beamio.net",
+    name="algorithm_toolkit",
+    description=(
+        "This project provides an easy way for researchers and "
+        "developers to develop and share algorithms related to "
+        "geospatial data and imagery."
+    ),
+    packages=find_packages(),
     include_package_data=True,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/BeamIO-Inc/algorithm_toolkit",
+    license="MIT",
     install_requires=[
         'configparser',
         'distro',
@@ -17,7 +30,6 @@ setup(
         'python-dotenv',
         'requests',
         'tabulate',
-        'distro',
         'psutil'
     ],
     entry_points={

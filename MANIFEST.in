@@ -1,3 +1,8 @@
-include sources/*.txt
-include static/*
-include templates/*.html
+include algorithm_toolkit/templates/*
+recursive-include algorithm_toolkit/static *
+recursive-include cli/examples/project *
+include cli/sources/*
+include docs/*.rst
+include docs/Makefile
+include docs/conf.py
+include docs/_static/*

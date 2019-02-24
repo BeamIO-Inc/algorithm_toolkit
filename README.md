@@ -11,7 +11,7 @@ Please see this project's official documentation on [Read The Docs](https://algo
 Python projects should be installed in virtual environments in order to keep versions of various packages in sync with the project code. However, if you want to get up and running immediately you can do the following in a Terminal window (assumes [Python](https://www.python.org/) and [pip](https://pip.pypa.io/en/stable/) are installed):
 
 ```shell
-pip install algorithm-toolkit
+pip install algorithm_toolkit
 alg cp myproject
 cd myproject
 alg run
@@ -69,7 +69,7 @@ mkvirtualenv myenvironment
 ## Setting up your ATK project
 
 ```shell
-pip install algorithm-toolkit
+pip install algorithm_toolkit
 alg cp myproject
 cd myproject
 alg run
@@ -82,7 +82,7 @@ Point your browser to http://localhost:5000/. You should see the development env
 Let's walk through this line by line.
 
 ```shell
-pip install algorithm-toolkit
+pip install algorithm_toolkit
 ```
 
 The ATK lives on [PyPi](https://pypi.org/), so this line downloads and installs the ATK in your virtual environment. Several dependencies will be installed as well.
