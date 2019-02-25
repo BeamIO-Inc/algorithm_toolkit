@@ -15,6 +15,7 @@ Contents
 
    about
    quick_start
+   pycharm
    atk-project
    dev-environment
    working-with-algorithms
