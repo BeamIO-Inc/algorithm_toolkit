@@ -15,6 +15,7 @@ from flask import (
     url_for
 )
 from flask_cors import cross_origin
+from requests.exceptions import RequestException
 from werkzeug import MultiDict
 from wtforms import validators
 
@@ -60,12 +61,15 @@ def get_docs_link():
 def get_notice(r):
     notice = None
     if not r.cookies.get('dismiss_notice'):
-        response = requests.get(
-            app.config['TILEDRIVER_URL'] + 'ads/atk_notice/')
-        if response.status_code == 200:
-            notice = json.loads(response.content.decode('utf-8'))['ads'][0]
-            if notice['ad_content'] == 'empty':
-                notice = None
+        try:
+            response = requests.get(
+                app.config['TILEDRIVER_URL'] + 'ads/atk_notice/')
+            if response.status_code == 200:
+                notice = json.loads(response.content.decode('utf-8'))['ads'][0]
+                if notice['ad_content'] == 'empty':
+                    notice = None
+        except RequestException:
+            return None
 
     return notice
 
@@ -82,7 +86,10 @@ def dismiss_notice():
 @home.route('/', methods=['GET'])
 @debug_only(app.config)
 def index():
-    response = requests.get(app.config['TILEDRIVER_URL'] + 'ads/atk_ad/')
+    try:
+        response = requests.get(app.config['TILEDRIVER_URL'] + 'ads/atk_ad/')
+    except RequestException:
+        response = None
 
     t_path = app.jinja_loader.searchpath[1]
     t_path = os.path.join(t_path, 'default_ads.json')
@@ -90,11 +97,14 @@ def index():
         default_obj = json.loads(ad_file.read())
         default_ads = default_obj['ads']
 
-    if response.status_code == 200:
-        ad_object = json.loads(response.content.decode('utf-8'))
-        ads = ad_object['ads']
-        if len(ads) < 3:
-            ads = ads + default_ads
+    if response:
+        if response.status_code == 200:
+            ad_object = json.loads(response.content.decode('utf-8'))
+            ads = ad_object['ads']
+            if len(ads) < 3:
+                ads = ads + default_ads
+        else:
+            ads = default_ads
     else:
         ads = default_ads
 

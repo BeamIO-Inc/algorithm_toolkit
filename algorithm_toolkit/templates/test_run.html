@@ -279,8 +279,9 @@
             try {
                 resp = JSON.parse(xhr.response);
             }
-            catch {
+            catch(error) {
                 resp = xhr.response;
+                console.error(error);
             }
 
             if (xhr.status != 200) {
