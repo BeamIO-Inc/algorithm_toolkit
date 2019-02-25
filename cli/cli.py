@@ -34,9 +34,15 @@ def cli():
 @click.argument('project_name')
 @click.option('--example', '-e', help='Install example project', is_flag=True)
 @click.option(
+    '--no-dependencies',
+    '-nd',
+    help='Do not install dependencies for example project',
+    is_flag=True
+)
+@click.option(
     '--with-docs', '-wd', help='Add documentation to portal', is_flag=True)
 @click.option('--quiet', '-q', help='Suppress screen output', is_flag=True)
-def cp_cmd(project_name, example, with_docs, quiet):
+def cp_cmd(project_name, example, no_dependencies, with_docs, quiet):
     '''
     Create an algorithm project.
     '''
@@ -46,16 +52,19 @@ def cp_cmd(project_name, example, with_docs, quiet):
         shutil.copytree(exmpl_path, project_name)
         path = os.path.abspath(project_name)
         generate_settings(this_path, path)
-        try:
-            from pip import main as pipmain
-        except ImportError:
-            from pip._internal import main as pipmain
+        if no_dependencies:
+            click.echo('Skipping dependencies...')
+        else:
+            try:
+                from pip import main as pipmain
+            except ImportError:
+                from pip._internal import main as pipmain
 
-        reqs = os.path.join(exmpl_path, 'requirements.txt')
-        pip_options = ['install', '-r', reqs]
-        if quiet:
-            pip_options += ['-q']
-        pipmain(pip_options)
+            reqs = os.path.join(exmpl_path, 'requirements.txt')
+            pip_options = ['install', '-r', reqs]
+            if quiet:
+                pip_options += ['-q']
+            pipmain(pip_options)
     else:
         os.mkdir(project_name)
         path = os.path.abspath(project_name)
