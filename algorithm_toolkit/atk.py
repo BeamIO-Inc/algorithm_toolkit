@@ -208,7 +208,7 @@ class Algorithm:
 
         for op in ops:
             if op['name'] in self.params:
-                if self.params[op['name']] != '':
+                if self.params[op['name']] != '' and self.params[op['name']] is not None:
                     try:
                         is_valid = self.check_param(op, False, is_valid)
                     except Exception as e:
