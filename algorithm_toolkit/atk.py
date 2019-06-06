@@ -102,9 +102,9 @@ class Algorithm:
                 params[p['name']]) != np.ndarray:
             try:
                 if params[p['name']][0] == '[':
-                    [item for item in params[p['name']][1:-1].split(",")]
+                    params[p['name']] = [item for item in params[p['name']][1:-1].split(",")]
                 else:
-                    [item for item in params[p['name']].split(",")]
+                    params[p['name']] = [item for item in params[p['name']].split(",")]
             except (ValueError, TypeError):
                 self.add_error_message(p['name'], 'Not a valid array')
                 is_valid = False
