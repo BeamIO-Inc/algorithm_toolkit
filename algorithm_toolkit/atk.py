@@ -583,10 +583,13 @@ class AlgorithmChain(object):
             p_items = temp_params[p]
             if 'source' in p_items:
                 if p_items['source'] == 'chain_ledger':
+
                     if 'source_algorithm' in p_items:
                         temp_output_list = cl.search_history(
                             p_items['key'], p_items['source_algorithm'])
-
+                        # If user misplaces an output box from an algorithm that is not in the cl history,
+                        # then temp_output_list=[], we might be able to throw a clearer 
+                        # error here
                         if 'occurrence' in p_items:
                             index = text2int(p_items['occurrence'])
                         else:
