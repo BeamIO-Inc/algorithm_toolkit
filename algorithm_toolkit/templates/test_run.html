@@ -381,9 +381,14 @@
                     output = resp.output_value.data;
                     $('#jsonwrapper').text(output);
                     location.href = '#jsonwrapper';
+                } else if (output_type === 'image') {
+                    imgsrcString = 'data:' + resp.output_value.mimetype + ';base64,' + resp.output_value['file'];
+                    $('#jsonwrapper').prepend('<img src=' + imgsrcString + '></img>')
+                    $('#jsonwrapper').show();
                 } else if (output_type === 'binary') {
                     output = resp.output_value;
                     if (output.mimetype != '') {
+
                         download('data:' + output.mimetype + ';base64,' + output.file, output.filename, output.mimetype);
                     } else {
                         alert('Mime type for file not provided');
