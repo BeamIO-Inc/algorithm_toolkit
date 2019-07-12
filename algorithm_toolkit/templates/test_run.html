@@ -138,6 +138,7 @@
     <script src="{{ url_for('static', filename='vendors/leaflet/leaflet.pm.min.js') }}"></script>
     <script src="{{ url_for('static', filename='vendors/marked/marked.js') }}"></script>
     <script src="{{ url_for('static', filename='vendors/downloadjs/download.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <style>
         #mapid {
             position: relative;
@@ -377,19 +378,52 @@
                     $('#jsonwrapper').text(JSON.stringify(output, null, '    '));
                     location.href = '#jsonwrapper';
                 } else if (output_type === 'csv') {
-                    $('#jsonwrapper').show();
                     output = resp.output_value.data;
-                    $('#jsonwrapper').text(output);
+                    $('#jsonwrapper').show().text(output);
                     location.href = '#jsonwrapper';
                 }
                 else if (output_type === 'binary') {
                     output = resp.output_value;
-                    let printMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    let imgMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    let vidMimeTypes = ['video/mp4', 'video/x-flv'];
+
                     let mt = output.mimetype;
-                    if (mt === undefined || mt != '') {
-                        if(printMimeTypes.includes(mt)) {
-                            imgsrcString = 'data:' + resp.output_value.mimetype + ';base64,' + resp.output_value['file'];
-                            $('#jsonwrapper').prepend('<img src=' + imgsrcString + '></img>').show();
+                    if (mt !== undefined || mt !== '') {
+                        if(imgMimeTypes.includes(mt)) {
+                            imgsrcString = 'data:' + mt + ';base64,' + output['file'];
+                            $('#jsonwrapper').prepend('<img src=' + imgsrcString + '></img>').show(); // width and height pls
+                        } else if (vidMimeTypes.includes(mt)){
+                            vidsrcString = 'data:'+mt+';base64,'+output['file'];
+
+                            if(output['graphData'] != 'none') {
+                                $('#jsonwrapper').prepend('<canvas id="classTracker"></canvas>').show();
+                                let ctx = document.getElementById("classTracker").getContext("2d");
+
+
+                                let chart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: output['graphData'],
+                                    options: {
+                                        scales: {
+                                            xAxes: [{
+                                                scaleLabel: {
+                                                    display: true,
+                                                    labelString: 'Time (ms)'
+                                                }
+                                            }],
+                                            yAxes: [{
+                                                scaleLabel: {
+                                                    display: true,
+                                                    labelString: 'Count'
+                                                }
+                                            }]
+                                        }
+                                    }
+                                });
+                            }
+
+                            $('#jsonwrapper').prepend('<video controls><source src=' + vidsrcString+ ' type=' + mt + '></video>').show();
+
                         } else {
                             download('data:' + output.mimetype + ';base64,' + output['file'], output['filename'], output.mimetype);
                         }
@@ -398,7 +432,7 @@
                     }
                 } else {
                     $('#textwrapper').show();
-                    if (resp.output_value != '') {
+                    if (resp.output_value !== '') {
                         output = marked(resp.output_value);
                     } else {
                         output = resp.output_value;
