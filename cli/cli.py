@@ -14,6 +14,8 @@ from io import BytesIO
 from string import Template
 from tabulate import tabulate
 from zipfile import ZipFile
+from click_plugins import with_plugins
+from pkg_resources import iter_entry_points
 
 from .cli_utils import get_json_path, get_algorithm
 
@@ -23,6 +25,8 @@ default_registry_url = 'https://algorithmcentral.com'
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
+# entry point to allow for cli plugins
+@with_plugins(iter_entry_points('atk.cli_plugins'))
 @click.group()
 def cli():
     '''

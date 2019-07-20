@@ -19,6 +19,8 @@ setup(
     url="https://github.com/BeamIO-Inc/algorithm_toolkit",
     license="MIT",
     install_requires=[
+        'click',
+        'click-plugins',
         'configparser',
         'distro',
         'flask >= 1.0',
