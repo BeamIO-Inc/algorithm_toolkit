@@ -20,6 +20,7 @@ class Main(Algorithm):
                 jsonObj['img_size'] = int(jsonObj['img_size'])
             jsonObj['save_text'] = jsonObj['save_text'] == 'True'
             jsonObj['save_images'] = jsonObj['save_images'] == 'True'
+
             cl.add_to_metadata('jsonObject', jsonObj)
 
         except FileNotFoundError as e:

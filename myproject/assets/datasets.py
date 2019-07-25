@@ -54,7 +54,7 @@ class LoadImages:  # for inference
 
         files = []
         if os.path.isdir(path):
-            files = sorted(glob.glob('%s/*.*' % path))
+            # files = sorted(glob.glob('%s/*.*' % path))
             raise IsADirectoryError('Please input a file, not a directory')
         elif os.path.isfile(path):
             files = [path]
@@ -79,19 +79,18 @@ class LoadImages:  # for inference
 
     def __next__(self):
         if self.count == self.nF:
-            # print('ENDING ITERATIONS count: {} nf: {}'.format(self.count, self.nF))
+            print('ENDING ITERATIONS count: {} nf: {}'.format(self.count, self.nF))
             raise StopIteration
         path = self.files[self.count]
 
         if self.video_flag[self.count]:
             # Read video
             self.mode = 'video'
-            ret_val, img0 = self.cap.read()
+            ret_val, img0 = self.cap.read() # reads next frame from video
             if not ret_val:
                 self.count += 1
                 self.cap.release()
                 if self.count == self.nF:  # last video
-                    # print('ENDING ITERATIONS count: {} nf: {}'.format(self.count, self.nF))
                     raise StopIteration
                 else:
                     path = self.files[self.count]
@@ -117,12 +116,15 @@ class LoadImages:  # for inference
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
 
         # cv2.imwrite(path + '.letterbox.jpg', 255 * img.transpose((1, 2, 0))[:, :, ::-1])  # save letterbox image
-        return path, img, img0, self.cap
+        return path, img, img0, self.cap # path, resized image, original image, video capture obj.
 
     def new_video(self, path):
         self.frame = 0
         self.cap = cv2.VideoCapture(path)
-        self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
+        self.duration = self.cap.get(cv2.CAP_PROP_POS_MSEC)
+        self.nframes = math.ceil(self.cap.get(cv2.CAP_PROP_FPS) * (self.duration/1000.0))
+        self.cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
 
     def __len__(self):
         return self.nF  # number of files

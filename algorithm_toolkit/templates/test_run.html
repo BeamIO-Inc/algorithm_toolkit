@@ -393,17 +393,28 @@
                             imgsrcString = 'data:' + mt + ';base64,' + output['file'];
                             $('#jsonwrapper').prepend('<img src=' + imgsrcString + '></img>').show(); // width and height pls
                         } else if (vidMimeTypes.includes(mt)){
+
                             vidsrcString = 'data:'+mt+';base64,'+output['file'];
 
                             if(output['graphData'] != 'none') {
                                 $('#jsonwrapper').prepend('<canvas id="classTracker"></canvas>').show();
                                 let ctx = document.getElementById("classTracker").getContext("2d");
-
+                                graphdata = output['graphData'];
+                                // if location and time frame provided in output object
+                                // can pull the twitter data here
 
                                 let chart = new Chart(ctx, {
                                     type: 'line',
-                                    data: output['graphData'],
+                                    data: graphdata,
                                     options: {
+                                        'onClick': (evt, item) => {
+
+                                            if(item !== []){
+                                                var ms = graphdata['labels'][item[0]['_index']];
+                                                document.getElementById('outputVideo').currentTime = ms/1000;
+                                            }
+                                        },
+
                                         scales: {
                                             xAxes: [{
                                                 scaleLabel: {
@@ -422,7 +433,7 @@
                                 });
                             }
 
-                            $('#jsonwrapper').prepend('<video controls><source src=' + vidsrcString+ ' type=' + mt + '></video>').show();
+                            $('#jsonwrapper').prepend('<video id=' + 'outputVideo '+ 'controls><source src=' + vidsrcString+ ' type=' + mt + '></video>').show();
 
                         } else {
                             download('data:' + output.mimetype + ';base64,' + output['file'], output['filename'], output.mimetype);

@@ -34,4 +34,3 @@ def parse_data_cfg(path):
     # print(options)
     return options
 
-

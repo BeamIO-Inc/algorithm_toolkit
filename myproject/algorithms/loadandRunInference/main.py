@@ -47,6 +47,8 @@ class Main(Algorithm):
                 )
 
             if len(image_data_obj) != 0:
+                # add in twitter information here, add location and time range as inputs in config json
+
                 cl.add_to_metadata('image_data_obj', image_data_obj)
 
         except json.decoder.JSONDecodeError as e:

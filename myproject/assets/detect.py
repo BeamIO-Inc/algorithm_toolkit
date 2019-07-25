@@ -4,7 +4,7 @@ from assets.datasets import *
 
 from sys import platform
 
-import time
+import time, math
 
 def detect(
         cfg,
@@ -13,7 +13,7 @@ def detect(
         images,  # input folder
         output, # output folder
         fourcc='H264',  # output video encoding
-        img_size=416,  # resize img_size x img_size
+        img_size=416,  # resize images for inferencing
         conf_thres=0.5,
         nms_thres=0.5,
         save_txt=False,
@@ -53,36 +53,29 @@ def detect(
     classes = load_classes(names_directory)
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes))]
 
-    segmented_images = {}
+    segmented_images = {} # return object
 
     np_array_or_byte = None
 
     classTracker = None
 
-    divisor = 30 # number of discrete points on graph, this will depend on how long the video is ...
-
+    interval = 1 # interval between points on the graph i.e. 30 frames, interval 10 -> 0,10,20,30
 
     for i, (path, img, im0, vid_cap) in enumerate(dataloader):
-
         if (dataloader.mode == 'video') & (type(classTracker) == type(None)):
-            vid_cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
 
-            duration = vid_cap.get(cv2.CAP_PROP_POS_MSEC)
+            graphPts = int(dataloader.nframes / interval) + 1
 
-            vid_cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
+            classTracker = np.zeros(graphPts)
 
-            classTracker = np.zeros(int(vid_cap.get(cv2.CAP_PROP_FRAME_COUNT) / divisor))
-
-            mslabels = np.around(np.linspace(0, duration, int(vid_cap.get(cv2.CAP_PROP_FRAME_COUNT)/divisor)), 2)
-
-            #print('TYPE OF LABELS: ' + str(type(mslabels)))
-            #print('TYPE OF DATA: ' + str(type(classTracker)))
+            mslabels = np.zeros(graphPts) # populate graph labels as inference runs
 
         t = time.time()
         im_name = Path(path).name
         save_path = str(Path(output) / im_name)
         _, ext = os.path.splitext(im_name)
         ext = 'jpeg' if ext[1:] == 'jpg' else ext[1:] # exclude the dot
+
         tmpFile = 'tmp_'+im_name
 
         # Get detections
@@ -90,22 +83,28 @@ def detect(
         pred, _ = model(img)
         det = non_max_suppression(pred, conf_thres, nms_thres)[0]
 
+        currentFrame = vid_cap.get(cv2.CAP_PROP_POS_FRAMES)
+        currentMS = vid_cap.get(cv2.CAP_PROP_POS_MSEC)
+
+        print('\nCurrent Frame: ' + str(currentFrame))
+
+        if (dataloader.mode == 'video') & (currentFrame % interval == 0.0):
+            mslabels[int(currentFrame/interval)] = round(vid_cap.get(cv2.CAP_PROP_POS_MSEC), 2)
+            print('Updating ms {} labels at index: {}'.format(vid_cap.get(cv2.CAP_PROP_POS_MSEC),str(i)))
+
         if det is not None and len(det) > 0:
-            # Rescale boxes from 416 to true image size
+            # Rescale boxes from prediction size to true image size
             det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
             # Print results to screen
-            print('%gx%g ' % img.shape[2:], end='')  # print image size
-
-            print('Millisecond: %.2f  ' % vid_cap.get(cv2.CAP_PROP_POS_MSEC), end='')
+            print('%gx%g ' % img.shape[2:], end='') # print image size
 
             for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()
+                if (dataloader.mode == 'video') & (classes[int(c)] == classofinterest):
+                    if (currentFrame % interval == 0.0):
+                        classTracker[int(currentFrame / interval)] = n
                 print('%g %s ' % (n, classes[int(c)]), end=', ')
-                if (dataloader.mode == 'video'):
-                    if (vid_cap.get(cv2.CAP_PROP_POS_FRAMES) % divisor == 0.0) & (classes[int(c)] == classofinterest):
-                        print('Updating at index: ' + str(vid_cap.get(cv2.CAP_PROP_POS_FRAMES)/divisor))
-                        classTracker[int(vid_cap.get(cv2.CAP_PROP_POS_FRAMES) / divisor)] = n
 
             # Draw bounding boxes and labels of detections
             for *xyxy, conf, cls_conf, cls in det:
@@ -119,6 +118,8 @@ def detect(
 
         print('Done. (%.3fs)' % (time.time() - t))
 
+        # print('Frames Processed: ' + str(frames))
+
         if dataloader.mode == 'images':
             if save_images:
                 cv2.imwrite(save_path, im0)
@@ -130,25 +131,41 @@ def detect(
                 fps = vid_cap.get(cv2.CAP_PROP_FPS)
                 width = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 height = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                resize = False
+
                 if save_images:
                     vid_writer = cv2.VideoWriter(vid_path, cv2.VideoWriter_fourcc(*fourcc), fps, (width, height))
                 else:
-                    aspectratio = width/height
-                    if (aspectratio == 16/9) & (width > 960) & (height > 540): # resize aspect ratio 16:9
-                        width, height = 960, 540
-                        print('Resizing video to fit browser: width %s x height %s' % (width, height))
+                    # https://sibsoft.net/xvideosharing/info_video_dimensions.html
+                    # h264/avc1 dimensions should be in multiples of 8 or 16, also
+                    ffmpegConvert = False
 
+                    aspectratio = width/height
+                    if (aspectratio == 16/9) & (width > 896): # resize aspect ratio 16:9
+                        width, height = 896, 504
+                        print('Resizing video to fit browser: width %s x height %s' % (width, height))
+                        resize = True
                     if (aspectratio == 1/1) & (width > 800): # resize aspect ratio 1:1
                         width, height = 800, 800
                         print('Resizing video to fit browser: width %s x height %s' % (width, height))
-
+                        resize = True
                     if (aspectratio == 4/3) & (width > 960): # resize aspect ratio 4:3
                         width, height = 960, 720
                         print('Resizing video to fit browser: width %s x height %s' % (width, height))
+                        resize = True
 
-                    vid_writer = cv2.VideoWriter(tmpFile, cv2.VideoWriter_fourcc(*fourcc), fps, (width, height))
-
-            vid_writer.write(cv2.resize(im0, (width, height)))
+                    # For displaying video to browser:
+                    # if aspect ratio is fine for h264, force encoding to be h264
+                    # otherwise, write video as mp4v then use ffmpeg to -> h264
+                    if (aspectratio == 4/3) | (aspectratio == 16/9):
+                        vid_writer = cv2.VideoWriter(tmpFile, cv2.VideoWriter_fourcc(*'h264'), fps, (width, height))
+                    else:
+                        vid_writer = cv2.VideoWriter(tmpFile, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
+                        ffmpegConvert = True
+            if resize:
+                vid_writer.write(cv2.resize(im0, (width, height)))
+            else:
+                vid_writer.write(im0)
 
     if save_images:
         if dataloader.mode == 'video':
@@ -160,14 +177,31 @@ def detect(
     else:
         if dataloader.mode == 'video':
             vid_writer.release()
-            np_array_or_byte = open(tmpFile, 'rb').read()
+
+            # for videos with strange aspect ratios (i.e. shot on iphone), the opencv
+            # h264 compression doesn't work. A quick workaround is to use mp4v then
+            # convert to h264 with ffmpeg cli. Works for demo purposes for now...
+
+            if ffmpegConvert:
+                tmpfile1 = 'tmp_h264_' + im_name
+                os.system('ffmpeg -i {0} -an -vcodec libx264 -crf 17 {1}'.format(tmpFile, tmpfile1))
+                os.remove(tmpFile)  # convert temporary video to h264 via ffmpeg
+                np_array_or_byte = open(tmpfile1, 'rb').read()
+                os.remove(tmpfile1)  # remove temporary video
+            else:
+                np_array_or_byte = open(tmpFile, 'rb').read()
+                os.remove(tmpFile)  # remove temporary video
             segmented_images['data'] = np_array_or_byte
             segmented_images['ext'] = ext
-            segmented_images['class_tracker_data'] = {'labels': mslabels.tolist(), 'datasets':[{'label': classofinterest, 'borderColor': 'rgb(255, 99, 132)', 'data': classTracker.tolist(), 'fill': 'false'}]}
-            os.remove(tmpFile)  # remove temporary video
+            segmented_images['class_tracker_data'] = {'labels': mslabels.tolist(), 'datasets': [
+                {'label': classofinterest, 'borderColor': 'rgb(255, 99, 132)', 'data': classTracker.tolist(),
+                 'fill': 'false'}]}
+
+            # add location and time range info into segmented_images to pull twitter data:
+            # segmented_images['location']=(lat, long)
+
         else:
             segmented_images['data'] = np_array_or_byte # image as np array (bgr)
             segmented_images['ext'] = ext # include extension of data for mimetype
-
 
     return segmented_images
