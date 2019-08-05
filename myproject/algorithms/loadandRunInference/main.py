@@ -28,7 +28,16 @@ class Main(Algorithm):
             save_txt = paramJsonObj['save_text']
             save_images = paramJsonObj['save_images']
 
-            img_of_interest = None # some image of interest to track
+            includetwittergraph = paramJsonObj['twitter']
+            twitterObj = {}
+            twitterKeys = ['fromDate', 'toDate', 'lon', 'lat']
+
+            for i in twitterKeys:
+                twitterObj[i] = paramJsonObj[i]
+
+            print(twitterObj)
+
+            img_of_interest = 'car' # some image of interest to track - need to add to config.json
 
             with torch.no_grad(): # no gradients needed bc no backprop needed
                 image_data_obj = detect(
@@ -43,12 +52,14 @@ class Main(Algorithm):
                     nms_thresh,
                     save_txt,
                     save_images,
-                    backend
+                    backend,
+                    img_of_interest,
+                    includetwittergraph,
+                    twitterObj
                 )
 
             if len(image_data_obj) != 0:
                 # add in twitter information here, add location and time range as inputs in config json
-
                 cl.add_to_metadata('image_data_obj', image_data_obj)
 
         except json.decoder.JSONDecodeError as e:

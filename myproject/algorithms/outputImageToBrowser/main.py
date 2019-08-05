@@ -33,6 +33,8 @@ class Main(Algorithm):
         # Add your algorithm code here
 
         try:
+            includeTwitter = False
+            includeGraph = False
             if 'file_path' in params:
                 filepath = params['file_path']
                 slashInd = filepath.rfind('/')
@@ -59,14 +61,15 @@ class Main(Algorithm):
                 file_name = ''
 
             elif 'image_data_object' in params:
-                ext = params['image_data_object']['ext']
+                image_data_object = params['image_data_object']
+                ext = image_data_object['ext']
                 mimeType = ext2Mime[ext]
-                data = params['image_data_object']['data']
-                includeGraph = False
+                data = image_data_object['data']
                 if ext in videotypes:
                     decoded = base64.b64encode(data).decode('utf-8')
-                    graphDataObj = params['image_data_object']['class_tracker_data']
+                    graphDataObj = image_data_object['class_tracker_data']
                     includeGraph = True
+                    includeTwitter = ('twitter' in image_data_object) and (image_data_object['twitter'])
                 else:
                     decoded = self.tmpImgWrite(data, ext)
                 file_name = ''
@@ -74,13 +77,19 @@ class Main(Algorithm):
             else:
                 raise IOError('Please include image data or file path ')
 
+            # print(params['twitter'])
+
             chain_output = {
                 'output_type': 'binary',
                 'output_value': {
                     "mimetype": mimeType,
                     "file": decoded,
                     "filename": file_name,
-                    "graphData": graphDataObj if includeGraph else 'none'
+                    "objectGraphData": graphDataObj if includeGraph else 'none',
+                    # add twitter info here
+                    "twitter": includeTwitter,
+                    "authKey" : image_data_object['authKey'] if includeTwitter else 'none',
+                    "twitterOptions": image_data_object['twitterOptions'] if includeTwitter else 'none'
                 }
             }
 

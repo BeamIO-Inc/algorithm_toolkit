@@ -8,7 +8,8 @@ class Main(Algorithm):
         params = self.params  # type: dict
         # Add your algorithm code here
 
-        try:
+        try: # parse json from text, and turn everything into appropriate types
+            print('Reading config')
             file =  open(params['txt_file_path'], 'r')
             configstr = file.read()
             jsonObj = json.loads(configstr)
@@ -18,8 +19,11 @@ class Main(Algorithm):
                 jsonObj['nms_thresh'] = float(jsonObj['nms_thresh'])
             if type(jsonObj['img_size']) != int:
                 jsonObj['img_size'] = int(jsonObj['img_size'])
-            jsonObj['save_text'] = jsonObj['save_text'] == 'True'
-            jsonObj['save_images'] = jsonObj['save_images'] == 'True'
+            jsonObj['save_text'] = (jsonObj['save_text'] == 'True') | (jsonObj['save_text'] == 'true')
+            jsonObj['save_images'] = (jsonObj['save_images'] == 'True') | (jsonObj['save_images'] == 'true')
+            jsonObj['twitter'] = (jsonObj['twitter'] == 'True') | (jsonObj['twitter'] == 'true')
+
+            print(jsonObj)
 
             cl.add_to_metadata('jsonObject', jsonObj)
 

@@ -1,10 +1,11 @@
 from assets.models import *
 from assets.utils import *
 from assets.datasets import *
+from atkEnv.keys import * # secret keys stored here, ignored in git commits
 
 from sys import platform
 
-import time, math
+import time, base64
 
 def detect(
         cfg,
@@ -19,7 +20,9 @@ def detect(
         save_txt=False,
         save_images=False,
         backend=False,
-        classofinterest = 'car'
+        classofinterest = 'car',
+        includetwittergraph = False, # graph options are set in load and run inference layer
+        twitterOptions=None
     ):
 
     device = torch_utils.select_device(force_cpu=backend)
@@ -59,7 +62,7 @@ def detect(
 
     classTracker = None
 
-    interval = 1 # interval between points on the graph i.e. 30 frames, interval 10 -> 0,10,20,30
+    interval = 1 # # of frames between points on the graph i.e. 30 frames, interval 10 -> 0,10,20,30
 
     for i, (path, img, im0, vid_cap) in enumerate(dataloader):
         if (dataloader.mode == 'video') & (type(classTracker) == type(None)):
@@ -86,11 +89,9 @@ def detect(
         currentFrame = vid_cap.get(cv2.CAP_PROP_POS_FRAMES)
         currentMS = vid_cap.get(cv2.CAP_PROP_POS_MSEC)
 
-        print('\nCurrent Frame: ' + str(currentFrame))
-
         if (dataloader.mode == 'video') & (currentFrame % interval == 0.0):
             mslabels[int(currentFrame/interval)] = round(vid_cap.get(cv2.CAP_PROP_POS_MSEC), 2)
-            print('Updating ms {} labels at index: {}'.format(vid_cap.get(cv2.CAP_PROP_POS_MSEC),str(i)))
+            # print('Updating ms {} labels at index: {}'.format(vid_cap.get(cv2.CAP_PROP_POS_MSEC),str(i)))
 
         if det is not None and len(det) > 0:
             # Rescale boxes from prediction size to true image size
@@ -133,14 +134,19 @@ def detect(
                 height = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 resize = False
 
+                # make sure aspect ratio for fourcc is ok
+                aspectratio = width / height
+                if (aspectratio == 4/3) | (aspectratio == 16/9) | (aspectratio == 1/1):
+                    f = fourcc
+                else:
+                    f = 'mp4v'
+
                 if save_images:
-                    vid_writer = cv2.VideoWriter(vid_path, cv2.VideoWriter_fourcc(*fourcc), fps, (width, height))
+                    vid_writer = cv2.VideoWriter(vid_path, cv2.VideoWriter_fourcc(*f), fps, (width, height))
                 else:
                     # https://sibsoft.net/xvideosharing/info_video_dimensions.html
-                    # h264/avc1 dimensions should be in multiples of 8 or 16, also
+                    # h264/avc1 dimensions should be in multiples of 8 or 16
                     ffmpegConvert = False
-
-                    aspectratio = width/height
                     if (aspectratio == 16/9) & (width > 896): # resize aspect ratio 16:9
                         width, height = 896, 504
                         print('Resizing video to fit browser: width %s x height %s' % (width, height))
@@ -155,7 +161,7 @@ def detect(
                         resize = True
 
                     # For displaying video to browser:
-                    # if aspect ratio is fine for h264, force encoding to be h264
+                    # if aspect ratio is fine for h264, force encoding to be h264 (html5 video only supports h264)
                     # otherwise, write video as mp4v then use ffmpeg to -> h264
                     if (aspectratio == 4/3) | (aspectratio == 16/9):
                         vid_writer = cv2.VideoWriter(tmpFile, cv2.VideoWriter_fourcc(*'h264'), fps, (width, height))
@@ -174,13 +180,13 @@ def detect(
         if platform == 'darwin':  # macos
             os.system('open ' + output + ' ' + save_path)
 
-    else:
+    else: # write images to browser
         if dataloader.mode == 'video':
             vid_writer.release()
 
             # for videos with strange aspect ratios (i.e. shot on iphone), the opencv
-            # h264 compression doesn't work. A quick workaround is to use mp4v then
-            # convert to h264 with ffmpeg cli. Works for demo purposes for now...
+            # h264 compression doesn't work. Temporary workaround for now is to use mp4v then
+            # convert to h264 with ffmpeg cli.
 
             if ffmpegConvert:
                 tmpfile1 = 'tmp_h264_' + im_name
@@ -198,7 +204,17 @@ def detect(
                  'fill': 'false'}]}
 
             # add location and time range info into segmented_images to pull twitter data:
-            # segmented_images['location']=(lat, long)
+            segmented_images['twitter'] = includetwittergraph
+            if twitterOptions != None:
+                segmented_images['twitterOptions'] = twitterOptions
+            else:
+                segmented_images['twitter'] = False
+
+            authkeystr = cons_api_key+':'+cons_api_secret
+
+            encodedBytes = base64.b64encode(authkeystr.encode("utf-8"))
+            encodedStr = str(encodedBytes, "utf-8")
+            segmented_images['authKey'] = encodedStr
 
         else:
             segmented_images['data'] = np_array_or_byte # image as np array (bgr)
