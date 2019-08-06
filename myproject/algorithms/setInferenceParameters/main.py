@@ -20,6 +20,8 @@ class Main(Algorithm):
             paramJsonObject['save_text'] = params['save_text'] == 'True'
             paramJsonObject['save_images'] = params['save_image'] == 'True'
 
+            paramJsonObject['twitter'] = params['twitter'] == 'True'
+
             cl.add_to_metadata('jsonObject', paramJsonObject)
         except KeyError as e:
             self.raise_client_error('Missing key in setInferenceParameters: ' + str(e.args[0]))

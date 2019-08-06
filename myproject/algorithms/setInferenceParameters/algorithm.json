@@ -124,6 +124,66 @@
             "parameter_choices": "",
             "required": false,
             "sort_order": 11
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "Twitter date window yyyymmddhhmm (minute granularity)",
+            "display_name": "fromDate",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "fromDate",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 13
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "Twitter date window yyyymmddhhmm (minute granularity)",
+            "display_name": "toDate",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "toDate",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 14
+        },
+        {
+            "custom_validation": "",
+            "data_type": "float",
+            "default_value": null,
+            "description": "Longitude of video location",
+            "display_name": "Longitude",
+            "field_type": "number",
+            "help_text": "",
+            "max_value": null,
+            "min_value": null,
+            "name": "lon",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 15
+        },
+        {
+            "custom_validation": "",
+            "data_type": "float",
+            "default_value": null,
+            "description": "Latitude of video location",
+            "display_name": "Latitude",
+            "field_type": "number",
+            "help_text": "",
+            "max_value": null,
+            "min_value": null,
+            "name": "lat",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 16
         }
     ],
     "outputs": [
@@ -196,6 +256,21 @@
             "parameter_choices": "",
             "required": true,
             "sort_order": 3
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "Include Twitter graph in output. If checked, please include fromdate, todate and lon/lat fields",
+            "display_name": "twitter",
+            "field_type": "select",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "twitter",
+            "parameter_choices": "True, False",
+            "required": true,
+            "sort_order": 12
         }
     ],
     "version": "0.0.1"

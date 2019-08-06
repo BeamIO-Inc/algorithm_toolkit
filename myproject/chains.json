@@ -14,10 +14,10 @@
             "algorithm": "loadandRunInference",
             "parameters": {
                 "parametersJSON": {
-                    "source": "chain_ledger",
-                    "source_algorithm": "setInferenceParameters",
                     "key": "jsonObject",
-                    "occurrence": "first"
+                    "occurrence": "first",
+                    "source": "chain_ledger",
+                    "source_algorithm": "setInferenceParameters"
                 }
             }
         },
@@ -25,10 +25,10 @@
             "algorithm": "outputImageToBrowser",
             "parameters": {
                 "image_data_object": {
-                    "source": "chain_ledger",
-                    "source_algorithm": "loadandRunInference",
                     "key": "image_data_obj",
-                    "occurrence": "first"
+                    "occurrence": "first",
+                    "source": "chain_ledger",
+                    "source_algorithm": "loadandRunInference"
                 }
             }
         }
@@ -37,6 +37,23 @@
         {
             "algorithm": "outputImageToBrowser",
             "parameter_source": "user"
+        }
+    ],
+    "savevideotxtconfig": [
+        {
+            "algorithm": "configTxt",
+            "parameter_source": "user"
+        },
+        {
+            "algorithm": "loadandRunInference",
+            "parameters": {
+                "parametersJSON": {
+                    "key": "jsonObject",
+                    "occurrence": "first",
+                    "source": "chain_ledger",
+                    "source_algorithm": "configTxt"
+                }
+            }
         }
     ],
     "txtconfigyolo": [
@@ -48,10 +65,10 @@
             "algorithm": "loadandRunInference",
             "parameters": {
                 "parametersJSON": {
-                    "source": "chain_ledger",
-                    "source_algorithm": "configTxt",
                     "key": "jsonObject",
-                    "occurrence": "first"
+                    "occurrence": "first",
+                    "source": "chain_ledger",
+                    "source_algorithm": "configTxt"
                 }
             }
         },
@@ -59,10 +76,10 @@
             "algorithm": "outputImageToBrowser",
             "parameters": {
                 "image_data_object": {
-                    "source": "chain_ledger",
-                    "source_algorithm": "loadandRunInference",
                     "key": "image_data_obj",
-                    "occurrence": "first"
+                    "occurrence": "first",
+                    "source": "chain_ledger",
+                    "source_algorithm": "loadandRunInference"
                 }
             }
         }
@@ -80,23 +97,6 @@
                     "occurrence": "first",
                     "source": "chain_ledger",
                     "source_algorithm": "loadandRunInference"
-                }
-            }
-        }
-    ],
-    "savevideotxtconfig": [
-        {
-            "algorithm": "configTxt",
-            "parameter_source": "user"
-        },
-        {
-            "algorithm": "loadandRunInference",
-            "parameters": {
-                "parametersJSON": {
-                    "source": "chain_ledger",
-                    "source_algorithm": "configTxt",
-                    "key": "jsonObject",
-                    "occurrence": "first"
                 }
             }
         }
