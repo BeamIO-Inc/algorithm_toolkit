@@ -1,7 +1,7 @@
 from assets.models import *
 from assets.utils import *
 from assets.datasets import *
-from atkEnv.keys import * # secret keys stored here, ignored in git commits
+from atkEnv.keys import * # secret keys stored here, ignored in git commits, *change this to .env file secret keys
 
 from sys import platform
 
@@ -87,7 +87,7 @@ def detect(
         det = non_max_suppression(pred, conf_thres, nms_thres)[0]
 
         currentFrame = vid_cap.get(cv2.CAP_PROP_POS_FRAMES)
-        currentMS = vid_cap.get(cv2.CAP_PROP_POS_MSEC)
+        # currentMS = vid_cap.get(cv2.CAP_PROP_POS_MSEC)
 
         if (dataloader.mode == 'video') & (currentFrame % interval == 0.0):
             mslabels[int(currentFrame/interval)] = round(vid_cap.get(cv2.CAP_PROP_POS_MSEC), 2)

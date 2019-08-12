@@ -196,6 +196,9 @@
             position: absolute;
         }
     </style>
+
+    <script src="{{ url_for('static', filename='vendors/charts.js') }}"></script>
+
     <script>
         var isRunning = false;
         var httpChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -396,20 +399,17 @@
 
                             vidsrcString = 'data:'+mt+';base64,'+output['file'];
 
-                            if(output['graphData'] != 'none') {
-                                $('#jsonwrapper').prepend('<canvas id="classTracker"></canvas>').show();
+                            if(output['objectGraphData'] != 'none') {
+                                $('#jsonwrapper').prepend('<canvas id="classTracker" style="width:50%"></canvas>').show();
                                 let ctx = document.getElementById("classTracker").getContext("2d");
-                                graphdata = output['graphData'];
-                                // if location and time frame provided in output object
-                                // can pull the twitter data here
+                                graphdata = output['objectGraphData'];
 
                                 let chart = new Chart(ctx, {
                                     type: 'line',
                                     data: graphdata,
                                     options: {
                                         'onClick': (evt, item) => {
-
-                                            if(item !== []){
+                                            if(item.length != 0){
                                                 var ms = graphdata['labels'][item[0]['_index']];
                                                 document.getElementById('outputVideo').currentTime = ms/1000;
                                             }
@@ -431,6 +431,69 @@
                                         }
                                     }
                                 });
+                            } // object graph
+
+                            if(output['twitter']) {
+                                $('#jsonwrapper').prepend('<canvas id="twitterGraph" style="width:50%"></canvas>').show();
+                                let bucketamt = 20; // minutes per bucket
+                                let options = output['twitterOptions'];
+                                let fd = options['fromDate'];
+                                let td = options['toDate'];
+
+                                let fromDate = new Date(fd.substring(0,4)
+                                  +'-'+fd.substring(4,6)+'-'+fd.substring(6,8)+'T'
+                                  +fd.substring(8,10)+':'+fd.substring(10, 12) + ':00Z');
+
+                                let toDate = new Date(td.substring(0,4)
+                                  +'-'+td.substring(4,6)+'-'+td.substring(6,8)+'T'
+                                  +td.substring(8,10)+':'+td.substring(10, 12) + ':00Z');
+
+                                let diffMin = Math.floor((toDate-fromDate)/ 60000); // 320
+
+                                let tr = document.getElementById('twitterGraph').getContext('2d');
+                                let twitterChart = new Chart(tr, {
+                                    type: 'bar',
+                                    data: {datasets: []},
+                                    plugins:[{
+                                    afterDraw: function(chrt) {
+                                      if(chrt.data.datasets.length === 0) {
+                                        // after initial render
+                                        let ctx = chrt.chart.ctx;
+                                        let width = chrt.chart.width;
+                                        let height = chrt.chart.height;
+                                        chrt.clear();
+
+                                        ctx.save();
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+                                        ctx.font = "16px normal 'Helvetica Nueue'";
+                                        ctx.fillText('Fetching data', width / 2, height / 2);
+                                        ctx.restore();
+                                      }
+                                    }
+                                  }],
+                                    options:{
+                                        'onClick': (evt, item) => {
+                                            if(item.length != 0) {
+                                                let ind = item[0]['_index']; // gives the bucket index
+                                                let minSinceStart = bucketamt*ind;
+                                                let fraction = minSinceStart/diffMin;
+                                                let video = document.getElementById('video');
+                                                video.currentTime = video.duration*fraction;
+                                            }
+                                        },
+                                        scales: {
+                                            yAxes: [{
+                                                scaleLabel: {
+                                                   display: true,
+                                                   labelString: 'Count'
+                                                }
+                                            }]
+                                        }
+                                    }
+                                });
+
+                                fetchAll(output['authKey'], options, twitterChart)
                             }
 
                             $('#jsonwrapper').prepend('<video id=' + 'outputVideo '+ 'controls><source src=' + vidsrcString+ ' type=' + mt + '></video>').show();
