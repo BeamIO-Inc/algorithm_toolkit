@@ -1,4 +1,4 @@
-FORKED from base beamio repo
+FORKED from base beamio repo - /myproject contains working example of video detection + twitter data application
 
 # Welcome to the Algorithm Toolkit (BETA)!
 
