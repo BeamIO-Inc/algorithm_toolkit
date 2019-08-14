@@ -1,5 +1,4 @@
-Project operates with local util/setup files for yolo example,
-at some point port it over to resippy.
+An example project with ATK, using image recognition[https://github.com/ultralytics/yolov3] and public twitter data, we can generate insights of temporal points in videos of 'high activity'. 
 
-All cred to https://github.com/ultralytics/yolov3 for the 
+All credit goes to https://github.com/ultralytics/yolov3 for the 
 working pytorch yolo model
