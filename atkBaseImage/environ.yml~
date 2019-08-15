@@ -1,0 +1,14 @@
+name: twitterDemo
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - pyproj
+  - python
+  - scikit-learn
+  - pip:
+    - opencv-python
+    - pyexiftool
+    - pysolar
+    - git+https://github.com/jrmh96/algorithm_toolkit
