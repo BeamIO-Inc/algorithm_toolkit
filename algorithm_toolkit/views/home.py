@@ -888,7 +888,8 @@ def test_run(chain_name):
         for op in alg_definition['optional_parameters']:
             if get_source(a, op['name']) == 'user':
                 temp_field = set_field(op, '')
-                temp_name = a_name.replace(os.sep, '___') + '__' + op['name']
+                # temp_name = a_name.replace(os.sep, '___') + '__' + op['name']
+                temp_name = a_name.replace('/', '___') + '__' + op['name']
                 temp_name += '_' + str(a_iterator)
                 setattr(F, temp_name, temp_field)
                 op['field'] = eval('F().' + temp_name)
