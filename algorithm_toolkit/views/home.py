@@ -207,6 +207,12 @@ def main():
             make_dir_if_not_exists(os.path.join(path, 'history'))
             save_path = os.path.join(path, 'history', save_fname)
         c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
+        
+        if 'CHAIN_HISTORY' in app.config:
+            ch = app.config['CHAIN_HISTORY']
+            if ch is not None and len(ch) != 0:
+                ch.pop(0)
+            ch.append(c_obj.chain_ledger)
     else:
         response = c_obj.call_batch(iter_param, iter_type, iter_value)
 
