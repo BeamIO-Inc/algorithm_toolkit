@@ -41,3 +41,10 @@ replacing [...] with your twitter developer environment label, app consumer api 
 You should now be able to set up an algorithm chain using the object detection functionality. The project also comes with some example
 chains to input videos and run detection on them.
 
+Running video detection chain:
+Run the chain docker_demo, the only step you will need to set up is the first method. In Set Inference Parameters, enter all inference 
+parameters. Enter true for twitter graph and object detection graph to view graphs at the end. You will also need to provide the path to 
+the video file.
+
+
+
