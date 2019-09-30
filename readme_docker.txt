@@ -46,13 +46,10 @@ docker cp [local path to mp4] [ID]:/atk_project/assets/data/raptorsParade.mp4
 
 from a different bash shell. Where ID is the container id observed earlier from docker ps. This will copy the raptors parade mp4 for use in the docker container. Be sure to name it exactly as above, the demo has this path hardcoded.
 
-Configuring Dependencies:
-As a last step we need to configure a few dependencies. Within the docker shell run:
-apt-get update
-apt-get install -y libsm6 libxext6 libxrender-dev
-pip install opencv-python
+Finally, run:
+alg run --host=0.0.0.0
 
-and pip install torch to install both these dependencies.
+from the docker shell and it will run.
 
 You should now be able to set up an algorithm chain using the object detection functionality. The project comes with several example chains.
 
@@ -60,4 +57,3 @@ Running video detection chain:
 Run the chain docker_demo, the only step you will need to set up is the first method. In Set Inference Parameters, enter all inference 
 parameters. Enter true for twitter graph and object detection graph to view graphs at the end. You will also need to provide the path to 
 the video file.
-
