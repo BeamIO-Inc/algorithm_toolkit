@@ -24,6 +24,12 @@ Now go to a web browser on the host machine and type localhost:5000, you should 
 Although the atk is running, we still need to configure the information to call the twitter api.
 According to https://developer.twitter.com/en/docs/tweets/search/quick-start/premium-30-day
 we need to know: the twitter dev environment label, the consumer api key, and the consumer api secret.
+We will also need to include the demo video inside the docker container.
+
+To get the video, download the mp4 of the parade for the Toronto Raptors from this source: https://imgur.com/gallery/edMxDX0,
+then use:
+
+docker cp [local path to mp4] atk_twitter_deploy:master:/raptors_parade.mp4 from a different bash shell.
 
 While the atk_twitter_deploy:master container is running, open a new bash shell and run:
 docker ps
@@ -44,6 +50,4 @@ Running video detection chain:
 Run the chain docker_demo, the only step you will need to set up is the first method. In Set Inference Parameters, enter all inference 
 parameters. Enter true for twitter graph and object detection graph to view graphs at the end. You will also need to provide the path to 
 the video file.
-
-
 
