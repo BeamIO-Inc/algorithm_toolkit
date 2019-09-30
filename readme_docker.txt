@@ -40,9 +40,19 @@ echo "TWITTER_CONSUMER_API_SECRET\"[...]\"" >> .env
 replacing [...] with your twitter developer environment label, app consumer api key, and app consumer api secret respectively.
 
 To get the video, download the mp4 of the parade for the Toronto Raptors from this source: https://imgur.com/gallery/edMxDX0,
-then use:
+then run:
 
-docker cp [local path to mp4] [ID]:/atk_project/assets/raptors_parade.mp4 from a different bash shell. Where ID is the container id observed earlier from docker ps. This will copy the raptors parade mp4 for use in the docker container.
+docker cp [local path to mp4] [ID]:/atk_project/assets/data/raptorsParade.mp4
+
+from a different bash shell. Where ID is the container id observed earlier from docker ps. This will copy the raptors parade mp4 for use in the docker container. Be sure to name it exactly as above, the demo has this path hardcoded.
+
+Configuring Dependencies:
+As a last step we need to configure a few dependencies. Within the docker shell run:
+apt-get update
+apt-get install -y libsm6 libxext6 libxrender-dev
+pip install opencv-python
+
+and pip install torch to install both these dependencies.
 
 You should now be able to set up an algorithm chain using the object detection functionality. The project comes with several example chains.
 
