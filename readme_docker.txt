@@ -38,8 +38,7 @@ echo "TWITTER_CONSUMER_API_SECRET\"[...]\"" >> .env
 
 replacing [...] with your twitter developer environment label, app consumer api key, and app consumer api secret respectively.
 
-You should now be able to set up an algorithm chain using the object detection functionality. The project also comes with some example
-chains to input videos and run detection on them.
+You should now be able to set up an algorithm chain using the object detection functionality. The project comes with several example chains.
 
 Running video detection chain:
 Run the chain docker_demo, the only step you will need to set up is the first method. In Set Inference Parameters, enter all inference 
