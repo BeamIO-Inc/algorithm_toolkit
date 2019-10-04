@@ -174,22 +174,28 @@ def main():
         iter_type = request.args.get('iter_type', None)
         iter_value = request.args.get('iter_value', None)
 
+    if status_key is None:
+        status_key = create_random_string(http_safe=True)
+
     if chain is None:
         return make_response('Missing chain parameter in request', 400)
 
-    try:
-        chain = json.loads(chain)
-    except ValueError:
-        return make_response('Chain parameter not properly formatted', 400)
+    if chain.lower() == 'from_global':
+        try:
+            chain = app.config['CHAIN_DATA'].pop(status_key)
+        except ValueError:
+            return make_response('Chain parameter not present in app configuration', 400)
+    else:
+        try:
+            chain = json.loads(chain)
+        except ValueError:
+            return make_response('Chain parameter not properly formatted', 400)
 
     if 'chain_name' not in chain:
         return make_response('Chain name not defined', 400)
 
     if 'algorithms' not in chain:
         return make_response('Algorithms not defined', 400)
-
-    if status_key is None:
-        status_key = create_random_string(http_safe=True)
 
     c_obj = AlgorithmChain(path, chain)
     if c_obj.chain_definition == {}:
@@ -200,6 +206,7 @@ def main():
     if run_mode == 'single':
         response = c_obj.call_chain_algorithms()
         save_fname = status_key + '.json'
+
         if 'CHAIN_LEDGER_HISTORY_PATH' in app.config:
             save_path = os.path.join(
                 app.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
@@ -209,10 +216,13 @@ def main():
         c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
         
         if 'CHAIN_HISTORY' in app.config:
-            ch = app.config['CHAIN_HISTORY']
-            if ch is not None and len(ch) != 0:
-                ch.pop(0)
-            ch.append(c_obj.chain_ledger)
+            if app.config['CHAIN_HISTORY_LENGTH'] > 0:
+                ch = app.config['CHAIN_HISTORY']
+
+                if len(ch) > app.config['CHAIN_HISTORY_LENGTH']:
+                    ch.popitem(last=False)
+
+                ch[status_key] = c_obj.chain_ledger
     else:
         response = c_obj.call_batch(iter_param, iter_type, iter_value)
 
