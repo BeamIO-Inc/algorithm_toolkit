@@ -236,6 +236,22 @@ function generateChain(name) {
 			}
 		}
 		chainObject[thisChain] = algs;
+		let tempAlgNameList = [];
+		chainObject[thisChain].forEach(a => {
+			tempAlgNameList.push(a.algorithm);
+			if (a.parameters) {
+				Object.keys(a.parameters).forEach(key => {
+					if (tempAlgNameList.indexOf(a.parameters[key].source_algorithm) === -1) {
+						var tempParent = workspace.getBlocksByType(a.algorithm)[0];
+						var tempInput = tempParent.inputList.filter(i => i.name === key)[0];
+						var tempSource = tempInput.connection.targetConnection.getSourceBlock();
+						tempSource.dispose();
+						var uBlock = addUserBlock();
+						tempInput.connection.connect(uBlock.outputConnection);
+					}
+				});
+			}
+		});
 		saveChains();
 	} else {
 		//do nothing
