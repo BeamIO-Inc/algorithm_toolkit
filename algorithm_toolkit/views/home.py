@@ -16,7 +16,7 @@ from flask import (
 )
 from flask_cors import cross_origin
 from requests.exceptions import RequestException
-from werkzeug import MultiDict
+from werkzeug.datastructures import MultiDict
 from wtforms import validators
 
 from .. import (
@@ -184,7 +184,8 @@ def main():
         try:
             chain = app.config['CHAIN_DATA'].pop(status_key)
         except ValueError:
-            return make_response('Chain parameter not present in app configuration', 400)
+            return make_response(
+                'Chain parameter not present in app configuration', 400)
     else:
         try:
             chain = json.loads(chain)
@@ -214,7 +215,7 @@ def main():
             make_dir_if_not_exists(os.path.join(path, 'history'))
             save_path = os.path.join(path, 'history', save_fname)
         c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
-        
+
         if 'CHAIN_HISTORY' in app.config:
             if app.config['CHAIN_HISTORY_LENGTH'] > 0:
                 ch = app.config['CHAIN_HISTORY']
@@ -467,8 +468,9 @@ def create_algorithm(algorithm=None):
                                     temp_val = c_alg['parameters'][p_val]
                                     if 'source_algorithm' in temp_val:
                                         if (
-                                            temp_val['source_algorithm'] ==
-                                                algorithm
+                                            temp_val[
+                                                'source_algorithm'
+                                            ] == algorithm
                                         ):
                                             temp_val[
                                                 'source_algorithm'
