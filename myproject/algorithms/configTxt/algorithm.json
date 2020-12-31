@@ -1,0 +1,36 @@
+{
+    "description": "Input file path to text file with json configuration for yolo network:\r\n{\r\ncfg_file_path: [file path to *.cfg],\r\ndata_cfg_path: [file path to *.data],\r\nweights_file_path: [file path to *.weights],\r\nfile_path: [file path to image],\r\nfourcc: [type of video compression, mpv4 by default],\r\nimg_size: [images scaled down to this size during inference, 416 by default],\r\nconf_thresh: [confidence threshold, 0.5 by default],\r\nnms_thresh: [nms threshold, 0.5 by default],\r\nsave_text: [true or false],\r\nsave_images: [true or false],\r\nbackend: [CPU or GPU],\r\n+save_path: [optional parameter, include if save_text or save_images is true]\r\n}",
+    "display_name": "input yolo configuration text file",
+    "homepage": "",
+    "license": "MIT",
+    "name": "configTxt",
+    "optional_parameters": [],
+    "outputs": [
+        {
+            "data_type": "string",
+            "description": "JSON object parsed from text file",
+            "display_name": "JSON Object",
+            "name": "jsonObject",
+            "sort_order": 0
+        }
+    ],
+    "private": false,
+    "required_parameters": [
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "File path to json config file",
+            "display_name": "Text File Path",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "txt_file_path",
+            "parameter_choices": "",
+            "required": true,
+            "sort_order": 0
+        }
+    ],
+    "version": "0.0.1"
+}

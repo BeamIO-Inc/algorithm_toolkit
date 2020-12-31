@@ -1,0 +1,36 @@
+{
+    "description": "Load a yolo model for inference on an image or video.\r\nParameter JSON must be configured using the enclosed methods. Required parameters are: cfg file path, data cfg, weights path, image/video path, image size, fourcc, confidence threshold, and nms threshold. If unsure, the default parameters are generally robust. Many thanks to ultralytics for their wonderful open-source implementation.",
+    "display_name": "Load and run inference model",
+    "homepage": "https://github.com/ultralytics/yolov3",
+    "license": "MIT",
+    "name": "loadandRunInference",
+    "optional_parameters": [],
+    "outputs": [
+        {
+            "data_type": "string",
+            "description": "Image data object: {'ext': extension of file, 'data': byte string for video, or bgr numpy array for images}",
+            "display_name": "Image Data Object",
+            "name": "image_data_obj",
+            "sort_order": 0
+        }
+    ],
+    "private": false,
+    "required_parameters": [
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "",
+            "display_name": "Parameters JSON Object",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "parametersJSON",
+            "parameter_choices": "",
+            "required": true,
+            "sort_order": 0
+        }
+    ],
+    "version": "0.0.1"
+}

@@ -1,0 +1,51 @@
+{
+    "description": "loads a convolutional neural network for training.  This removes the top layer of the network, so it is ready to be trained for any number of image classes.",
+    "display_name": "load cnn for training",
+    "homepage": "",
+    "license": "MIT",
+    "name": "stratus2019/load_cnn_for_training",
+    "optional_parameters": [],
+    "outputs": [
+        {
+            "data_type": "string",
+            "description": "",
+            "display_name": "cnn model",
+            "name": "cnn_model",
+            "sort_order": 0
+        }
+    ],
+    "private": false,
+    "required_parameters": [
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "vgg16",
+            "description": "",
+            "display_name": "model type",
+            "field_type": "select",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "model_type",
+            "parameter_choices": "vgg16, vgg19, resnet50",
+            "required": true,
+            "sort_order": 0
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "imagenet",
+            "description": "",
+            "display_name": "pretrained weights path",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "pretrained_weights_path",
+            "parameter_choices": "",
+            "required": true,
+            "sort_order": 1
+        }
+    ],
+    "version": "0.0.1"
+}

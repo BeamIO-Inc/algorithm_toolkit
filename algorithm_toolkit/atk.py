@@ -102,9 +102,9 @@ class Algorithm:
                 params[p['name']]) != np.ndarray:
             try:
                 if params[p['name']][0] == '[':
-                    [item for item in params[p['name']][1:-1].split(",")]
+                    params[p['name']] = [item for item in params[p['name']][1:-1].split(",")]
                 else:
-                    [item for item in params[p['name']].split(",")]
+                    params[p['name']] = [item for item in params[p['name']].split(",")]
             except (ValueError, TypeError):
                 self.add_error_message(p['name'], 'Not a valid array')
                 is_valid = False
@@ -583,10 +583,13 @@ class AlgorithmChain(object):
             p_items = temp_params[p]
             if 'source' in p_items:
                 if p_items['source'] == 'chain_ledger':
+
                     if 'source_algorithm' in p_items:
                         temp_output_list = cl.search_history(
                             p_items['key'], p_items['source_algorithm'])
-
+                        # If user misplaces an output box from an algorithm that is not in the cl history,
+                        # then temp_output_list=[], we might be able to throw a clearer 
+                        # error here
                         if 'occurrence' in p_items:
                             index = text2int(p_items['occurrence'])
                         else:

@@ -658,7 +658,8 @@ def chain_builder():
     drop_str += ']), "occurrence");'
 
     algpath = os.path.join(path, 'algorithms')
-
+    all_colors = 330
+    step = 5
     for root, dirs, files in os.walk(algpath):
         for algdir in dirs:
             parent = root[root.rfind(os.sep) + 1:]
@@ -672,9 +673,9 @@ def chain_builder():
                 temp_name = temp_alg['name']
                 temp_display = temp_alg['display_name']
 
-                this_colour = random.randrange(0, 330, 10)
-                while this_colour in used_colours:  # pragma: no cover
-                    this_colour = random.randrange(0, 330, 10)
+                this_colour = random.randrange(0, all_colors, step)
+                while (len(used_colours)<all_colors/step) & this_colour in used_colours:  # pragma: no cover
+                    this_colour = random.randrange(0, all_colors, step)
                 used_colours.append(this_colour)
                 this_colour = str(this_colour)
 

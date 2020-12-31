@@ -1,3 +1,5 @@
+FORKED from base beamio repo - /myproject contains working example of video detection + twitter data application
+
 # Welcome to the Algorithm Toolkit (BETA)!
 
 We built the Algorithm Toolkit (ATK) to provide researchers and data anaysts the tools they need to process data quickly and efficiently, so they can focus on actually doing scientific or other analysis work.

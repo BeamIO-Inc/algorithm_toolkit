@@ -1,0 +1,73 @@
+{
+    "description": "Print image (jpeg, png) or video (mp4) to browser as chain output. Enter either file path, image as numpy array, or image data object (output from load and run inference)",
+    "display_name": "Output Image To Browser",
+    "homepage": "",
+    "license": "MIT",
+    "name": "outputImageToBrowser",
+    "optional_parameters": [
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "File Path",
+            "display_name": "file_path",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "file_path",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 0
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "Output of load and run inference model outputs an object with the data and the compression information",
+            "display_name": "Image Data Object",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "image_data_object",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 1
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "Output an image from a numpy array input (must be bgr colorspace)",
+            "display_name": "Image Array",
+            "field_type": "text",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "image_array",
+            "parameter_choices": "",
+            "required": false,
+            "sort_order": 2
+        },
+        {
+            "custom_validation": "",
+            "data_type": "string",
+            "default_value": "",
+            "description": "If inputting a numpy image array, please specify which compression to use",
+            "display_name": "Output Extension",
+            "field_type": "select",
+            "help_text": "",
+            "max_value": "",
+            "min_value": "",
+            "name": "extension",
+            "parameter_choices": "jpeg, jpg, png, bmp, ico",
+            "required": false,
+            "sort_order": 3
+        }
+    ],
+    "outputs": [],
+    "private": false,
+    "required_parameters": [],
+    "version": "0.0.1"
+}

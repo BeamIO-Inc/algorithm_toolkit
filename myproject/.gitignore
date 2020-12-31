@@ -1,3 +1,5 @@
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -8,7 +10,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-atkEnv/
 env/
 build/
 develop-eggs/
@@ -31,11 +32,6 @@ wheels/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-
-# Unneeded project files
-myproject/history/
-myproject/logs/
-
 
 # Installer logs
 pip-log.txt
@@ -69,9 +65,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/html/
-docs/images/
-docs/.doctrees/
 
 # PyBuilder
 target/
@@ -109,9 +102,5 @@ ENV/
 # mypy
 .mypy_cache/
 
-# misc
-.DS_Store
-scratchpad
-
-.idea
-!cli/examples/project/logs/app.log
+# ATK
+bin/
