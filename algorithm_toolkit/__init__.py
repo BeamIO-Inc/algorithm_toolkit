@@ -48,7 +48,7 @@ app.config['CORS_ORIGIN_WHITELIST'].append('https://mytiledriver.com')
 app.config['CORS_ORIGIN_WHITELIST'].append('https://tdprocess.com')
 app.config['TILEDRIVER_URL'] = 'https://app.tiledriver.com/'
 
-from .views.home import home, main, chain_run_status
+from .views.home import home, main, api_chain, chain_run_status
 from .views.manage import manage
 
 app.register_blueprint(home)
@@ -58,6 +58,7 @@ app.jinja_loader.searchpath.insert(0, app.config['ATK_PATH'] + '/templates')
 
 csrf = CSRFProtect(app)
 csrf.exempt(main)
+csrf.exempt(api_chain)
 csrf.exempt(chain_run_status)
 
 

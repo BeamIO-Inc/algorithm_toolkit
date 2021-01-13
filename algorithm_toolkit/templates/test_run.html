@@ -270,7 +270,7 @@
         }
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', thisProtocol + '//' + thisHost + '/main/', true);
+        xhr.open('POST', thisProtocol + '//' + thisHost + '/' + 'api' + '/' + '{{ chain_name }}' + '/', true);
         xhr.setRequestHeader("X-CSRFToken", csrf_token);
         xhr.onload = function(evt) {
             var error = false;
