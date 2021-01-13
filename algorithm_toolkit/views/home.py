@@ -190,7 +190,7 @@ def api_chain(chain_name):
     return jsonify(response)
 
 
-# This route/function is depricated ( Replaced by execute_chain() )
+# This route/function is depricated ( Replaced by api_chain() )
 # Chain name expected in the request form
 @home.route('/main/', methods=['POST', 'GET'])
 @cross_origin(origins=cors_origins)
@@ -201,7 +201,7 @@ def main():
     except:
         return make_response('Chain name does not exist in request form', 400)
 
-    # Returns a dictionary or a response
+    # Returns a dictionary or a bad request
     check = chain_check(request, chain_name, path)
 
     if isinstance(check, dict):  # If check is a dict
@@ -247,7 +247,7 @@ def main():
         if response['output_type'] == 'error':
             return make_response(jsonify(response), 400)
 
-    else:  # If check not a dict, then it must be a response!
+    else:  # If check not a dict, then it must be a bad request!
         return check
 
     return jsonify(response)
