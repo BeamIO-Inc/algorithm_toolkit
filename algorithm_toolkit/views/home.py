@@ -135,8 +135,8 @@ def show_docs(filename):
 
 
 # Chain name not in the request form, but in the endpoint!
-# New namespace ( /api/ ) added to prevent user from envoking other static routes
-@home.route('/api/<chain_name>/', methods=['POST', 'GET'])
+# New namespace ( /chains/ ) added to prevent user from envoking other static routes
+@home.route('/chains/<chain_name>/', methods=['POST', 'GET'])
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def run_chain(chain_name):
