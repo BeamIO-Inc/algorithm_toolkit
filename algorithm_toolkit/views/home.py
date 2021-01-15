@@ -20,7 +20,6 @@ from werkzeug.datastructures import MultiDict
 from wtforms import validators
 
 from .. import (
-    AlgorithmChain,
     check_api_key,
     debug_only,
     app,
@@ -40,7 +39,10 @@ from ..utils.file_utils import (
     list_algorithms
 )
 from ..utils.data_utils import create_random_string
-from ..utils.home_utils import chain_check
+from ..utils.home_utils import (
+    check_chain_request_form,
+    process_chain_request
+)
 from cli.cli import do_uninstall
 
 from . import home
@@ -137,60 +139,20 @@ def show_docs(filename):
 @home.route('/api/<chain_name>/', methods=['POST', 'GET'])
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
-def api_chain(chain_name):
+def run_chain(chain_name):
     # Returns a dictionary or a bad request
-    check = chain_check(request, chain_name, path)
+    check = check_chain_request_form(request, chain_name, path)
 
     if isinstance(check, dict):  # If check is a dict
-        chain = check['chain']
-        chain['chain_name'] = chain_name
-        status_key = check['status_key']
-        run_mode = check['run_mode']
-        iter_param = check['iter_param']
-        iter_type = check['iter_type']
-        iter_val = check['iter_val']
-
-        c_obj = AlgorithmChain(path, chain)
-        if c_obj.chain_definition == {}:
-            return make_response('Chain name not found', 404)
-        cl = c_obj.create_ledger(status_key)
-        cl.make_working_folders()
-
-        if run_mode == 'single':
-            response = c_obj.call_chain_algorithms()
-            save_fname = status_key + '.json'
-
-            if 'CHAIN_LEDGER_HISTORY_PATH' in app.config:
-                save_path = os.path.join(
-                    app.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
-            else:
-                make_dir_if_not_exists(os.path.join(path, 'history'))
-                save_path = os.path.join(path, 'history', save_fname)
-            c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
-
-            if 'CHAIN_HISTORY' in app.config:
-                if app.config['CHAIN_HISTORY_LENGTH'] > 0:
-                    ch = app.config['CHAIN_HISTORY']
-
-                    if len(ch) > app.config['CHAIN_HISTORY_LENGTH']:
-                        ch.popitem(last=False)
-
-                    ch[status_key] = c_obj.chain_ledger
-        else:
-            response = c_obj.call_batch(iter_param, iter_type, iter_value)
-
-        cl.remove_working_folders()
-
-        if response['output_type'] == 'error':
-            return make_response(jsonify(response), 400)
-
+        check['chain']['chain_name'] = chain_name
     else:  # If check not a dict, then it must be a bad request!
         return check
+    response = process_chain_request(check, path)
 
-    return jsonify(response)
+    return response
 
 
-# This route/function is depricated ( Replaced by api_chain() )
+# This route/function is depricated ( Replaced by run_chain() )
 # Chain name expected in the request form
 @home.route('/main/', methods=['POST', 'GET'])
 @cross_origin(origins=cors_origins)
@@ -201,56 +163,12 @@ def main():
     except:
         return make_response('Chain name does not exist in request form', 400)
 
-    # Returns a dictionary or a bad request
-    check = chain_check(request, chain_name, path)
-
-    if isinstance(check, dict):  # If check is a dict
-
-        chain = check['chain']
-        status_key = check['status_key']
-        run_mode = check['run_mode']
-        iter_param = check['iter_param']
-        iter_type = check['iter_type']
-        iter_val = check['iter_val']
-
-        c_obj = AlgorithmChain(path, chain)
-        if c_obj.chain_definition == {}:
-            return make_response('Chain name not found', 404)
-        cl = c_obj.create_ledger(status_key)
-        cl.make_working_folders()
-
-        if run_mode == 'single':
-            response = c_obj.call_chain_algorithms()
-            save_fname = status_key + '.json'
-
-            if 'CHAIN_LEDGER_HISTORY_PATH' in app.config:
-                save_path = os.path.join(
-                    app.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
-            else:
-                make_dir_if_not_exists(os.path.join(path, 'history'))
-                save_path = os.path.join(path, 'history', save_fname)
-            c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
-
-            if 'CHAIN_HISTORY' in app.config:
-                if app.config['CHAIN_HISTORY_LENGTH'] > 0:
-                    ch = app.config['CHAIN_HISTORY']
-
-                    if len(ch) > app.config['CHAIN_HISTORY_LENGTH']:
-                        ch.popitem(last=False)
-
-                    ch[status_key] = c_obj.chain_ledger
-        else:
-            response = c_obj.call_batch(iter_param, iter_type, iter_value)
-
-        cl.remove_working_folders()
-
-        if response['output_type'] == 'error':
-            return make_response(jsonify(response), 400)
-
-    else:  # If check not a dict, then it must be a bad request!
+    check = check_chain_request_form(request, chain_name, path)
+    if not isinstance(check, dict):
         return check
+    response = process_chain_request(check, path)
 
-    return jsonify(response)
+    return response
 
 
 @home.route('/chain_run_status/<status_key>/', methods=['POST'])

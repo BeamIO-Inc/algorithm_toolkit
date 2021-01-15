@@ -1,13 +1,23 @@
 import requests
 import json
+import os
 
-from flask import make_response
-
+from flask import (
+    make_response,
+    jsonify
+)
+from .. import (
+    AlgorithmChain,
+    app
+)
 from .data_utils import create_random_string
-from .file_utils import get_chain_def
+from .file_utils import (
+    get_chain_def,
+    make_dir_if_not_exists
+)
 
 
-def chain_check(request, chain_name, path):
+def check_chain_request_form(request, chain_name, path):
 
     chain = None
     status_key = None
@@ -78,5 +88,53 @@ def chain_check(request, chain_name, path):
         'run_mode': run_mode,
         'iter_param': iter_param,
         'iter_type': iter_type,
-        'iter_val': iter_value
+        'iter_value': iter_value
     })
+
+
+def process_chain_request(checked_response, path):
+
+    chain = checked_response['chain']
+    status_key = checked_response['status_key']
+    run_mode = checked_response['run_mode']
+    iter_param = checked_response['iter_param']
+    iter_type = checked_response['iter_type']
+    iter_value = checked_response['iter_value']
+
+    c_obj = AlgorithmChain(path, chain)
+    if c_obj.chain_definition == {}:
+        return make_response('Chain name not found', 404)
+
+    cl = c_obj.create_ledger(status_key)
+    cl.make_working_folders()
+
+    if run_mode == 'single':
+        response = c_obj.call_chain_algorithms()
+        save_fname = status_key + '.json'
+
+        if 'CHAIN_LEDGER_HISTORY_PATH' in app.config:
+            save_path = os.path.join(
+                app.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
+        else:
+            make_dir_if_not_exists(os.path.join(path, 'history'))
+            save_path = os.path.join(path, 'history', save_fname)
+        c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
+
+        if 'CHAIN_HISTORY' in app.config:
+
+            if app.config['CHAIN_HISTORY_LENGTH'] > 0:
+                ch = app.config['CHAIN_HISTORY']
+
+                if len(ch) > app.config['CHAIN_HISTORY_LENGTH']:
+                    ch.popitem(last=False)
+
+                ch[status_key] = c_obj.chain_ledger
+    else:
+        response = c_obj.call_batch(iter_param, iter_type, iter_value)
+
+    cl.remove_working_folders()
+
+    if response['output_type'] == 'error':
+        return make_response(jsonify(response), 400)
+
+    return jsonify(response)
