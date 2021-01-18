@@ -6,7 +6,7 @@ Example algorithms and algorithm chain for the Algorithm Toolkit.
 
 ## Overview
 
-* If you have not already, make sure you have the "atk-base" Docker image
+* If you have not already, make sure you have the "atk-base" Docker image installed
 * Instructions on how to do this can be found in the [main README](../../../README.md) near the bottom under Docker
 * Here, we will be building a Docker image that was made specifically for this example project
 * Our Docker image is built using the following custom [Dockerfile](Dockerfile)
