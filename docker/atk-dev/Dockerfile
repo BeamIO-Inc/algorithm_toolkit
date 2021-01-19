@@ -1,8 +1,5 @@
-FROM atk-base:latest
+FROM atk:latest
 
-RUN  apt-get update -y
-
-# Install jupyter lab, and some useful extensions
 RUN pip install jupyterlab==3.0.5 \
   && pip install jupyterlab-lsp==3.0.0 \
   && pip install python-language-server[all]==0.36.2
@@ -15,7 +12,7 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 
 WORKDIR /opt
 
-CMD  jupyter lab \
+CMD jupyter lab \
   --port=8888 \
   --no-browser \
   --ip=0.0.0.0 \

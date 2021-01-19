@@ -1,14 +1,14 @@
-FROM atk-base:latest
+FROM atk:latest
 
 # Any software dependencies you may need
 # For example: The python library "shapely",
 # which is in "requirements.txt" requires 'libgeos-dev'
-RUN  apt-get -qq update -y \
+RUN apt-get -qq update -y \
   && apt-get install libgeos-dev -y
 
 # Copy contents of your project into the docker container
-COPY . /atk-example-project
-WORKDIR /atk-example-project
+COPY . /atk-example
+WORKDIR /atk-example
 
 # Install project pip requirements
 RUN pip install -r requirements.txt

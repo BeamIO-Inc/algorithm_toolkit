@@ -6,12 +6,12 @@ Example algorithms and algorithm chain for the Algorithm Toolkit.
 
 ## Overview
 
-* If you have not already, make sure you have the "atk-base" Docker image installed
+* If you have not already, make sure you have the "atk" Docker image installed
 * Instructions on how to do this can be found in the [main README](../../../README.md) near the bottom under Docker
 * Here, we will be building a Docker image that was made specifically for this example project
 * Our Docker image is built using the following custom [Dockerfile](Dockerfile)
 * This Dockerfile does the following
-  * Includes everything in the "atk-base" Docker image
+  * Includes everything in the "atk" Docker image
   * Installs any necessary software the ATK project may need
   * Installs all the required python libraries for the project
   * Runs the ATK/flask project
