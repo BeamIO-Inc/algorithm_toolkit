@@ -169,6 +169,17 @@ sudo yum install python3-devel
 sudo yum install python-devel
 ```
 
+# Docker
+
+This repository contains 2 Docker files
+
+* [atk](/docker/atk/Dockerfile)
+* [atk-dev](/docker/atk-dev/Dockerfile)
+
+Once built and run, Docker containers are generated, which gives users access to easy to use development/deployment tools.
+
+Check out our official [Docker documentation](https://algorithm-toolkit.readthedocs.io/en/latest/docker.html) to learn more
+
 # Contributing
 
 Thanks for your interest in contributing to the Algorithm Toolkit codebase! You should know a few things.

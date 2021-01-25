@@ -25,6 +25,7 @@ Contents
    tutorial
    cli
    api
+   docker
    algorithm-registry
    contributing
 
