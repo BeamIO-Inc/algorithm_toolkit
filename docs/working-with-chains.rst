@@ -53,20 +53,14 @@ That's the beauty of the ATK platform: you can use it to do some really complica
 
 We built the ATK specifically to have these two capabilities. Many who use the ATK rely on its power to make their data processing lives easier, while others need to tweak the algorithms in order to understand fully the results of a chain run.
 
-chains.json
------------
+Chain Definition Files
+----------------------
 
-The Chain Builder provides a graphical view for a chain's structure and lets you change how it's put together. Under the hood, the chain is defined by a JSON file in your project called ``chains.json``. Here's what one looks like with the example project:
+The Chain Builder provides a graphical view for a chain's structure and lets you change how it's put together. Under the hood, the chain is defined by JSON files in your project called ``chains/<CHAIN_NAME>.json``. Here's what one looks like with the example project:
 
 .. code-block:: json
 
     {
-        "my_first_chain": [
-            {
-                "algorithm": "my_first_algorithm",
-                "parameter_source": "user"
-            }
-        ],
         "map_tiles": [
             {
                 "algorithm": "getmaptiles_roi",
@@ -103,7 +97,7 @@ The Chain Builder provides a graphical view for a chain's structure and lets you
         ]
     }
 
-We threw in the "my_first_chain" from the previous section as well. Focusing on "map_tiles", you can see the same structure depicted in graphical form here:
+This JSON file would be called ``chains/map_tiles.json``. You can see the same structure depicted in graphical form here:
 
     - "getmaptiles_roi" gets its input from "user"
     - "stitch_tiles" its one input from "getmaptiles_roi"

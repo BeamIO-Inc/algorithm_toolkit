@@ -12,23 +12,23 @@ Creating a new project using the CLI will also create all the files and folders 
 
     algorithms/
         __init__.py
+    chains/
     logs/
         app.log
     .env
     .gitignore
     __init__.py
-    chains.json
     config.py
     licenses.json
     run.py
 
 Let's look at what each of these files and folders do:
     - The **algorithms/** folder will contain the algorithms used by this project. As you create or install algorithms, they will be placed in this folder.
+    - The **chains/** folder will contain chain definition files for each chain you create. As you create chains, their configuration files (in JSON format) will be placed in this folder.
     - The **logs/** folder contains ``app.log``, which algorithms can write to in order to provide information to a developer.
     - ``.env``: Environment variables needed by the project are stored in this file.
     - ``.gitignore``: This file will be familiar to you if you have used the git utility for managing source code. It tells git which files to leave out of a repository when saving or publishing it.
     - ``__init__.py``: This file tells Python that the folder should be considered a Python package.
-    - ``chains.json``: When you create processing chains, the definitions of those chains will be saved in this file. When you start a new project, the file is empty.
     - ``config.py``: This is where you can set different parameters for the project, changing the way it works. See the Configuring a Project section below.
     - ``licenses.json``: This file is a placeholder for now, but will store license keys issued by developers for algorithms that require them.
     - ``run.py``: This file essentially links the project to the ATK.
