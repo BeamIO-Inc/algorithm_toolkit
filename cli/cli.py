@@ -15,7 +15,12 @@ from string import Template
 from tabulate import tabulate
 from zipfile import ZipFile
 
-from .cli_utils import get_json_path, get_algorithm
+from .cli_utils import (
+    get_json_path,
+    get_algorithm,
+    get_chain_def,
+    save_chain_files
+)
 
 
 this_path = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +74,6 @@ def cp_cmd(project_name, example, no_dependencies, with_docs, quiet):
         os.mkdir(project_name)
         path = os.path.abspath(project_name)
 
-        create_file(project_name, this_path, path, 'chains', '.json')
         create_file(project_name, this_path, path, 'licenses', '.json')
         create_file(project_name, this_path, path, 'config')
         create_file(project_name, this_path, path, '__init__')
@@ -85,6 +89,8 @@ def cp_cmd(project_name, example, no_dependencies, with_docs, quiet):
             os.path.join(path, 'algorithms'),
             '__init__'
         )
+
+        os.mkdir(os.path.join(path, 'chains'))
 
         os.mkdir(os.path.join(path, 'logs'))
         logpath = os.path.join(path, 'logs')
@@ -616,8 +622,7 @@ def do_uninstall(algorithm):
         return click.echo('Algorithm not found!')
     shutil.rmtree(alg_path)
 
-    with open(os.path.join(path, 'chains.json'), 'r') as chain_file:
-        chains = json.loads(chain_file.read())
+    chains = get_chain_def(path)
     for k, v in chains.items():
         chains[k] = [x for x in chains[k] if x['algorithm'] != algorithm]
         for alg in chains[k]:
@@ -635,8 +640,7 @@ def do_uninstall(algorithm):
                                 av.pop('key', None)
                                 av.pop('source_algorithm', None)
                                 av['source'] = 'user'
-    with open(os.path.join(path, 'chains.json'), 'w+') as f:
-        json.dump(chains, f, indent=4, separators=(',', ': '))
+    save_chain_files(path, chains)
 
 
 @cli.command('uninstall', context_settings=CONTEXT_SETTINGS)

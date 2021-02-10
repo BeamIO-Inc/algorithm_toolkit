@@ -36,7 +36,9 @@ from ..utils.file_utils import (
     get_chain_def,
     get_algorithm,
     make_dir_if_not_exists,
-    list_algorithms
+    list_algorithms,
+    clear_chains,
+    save_chain_files
 )
 from ..utils.data_utils import create_random_string
 from ..utils.home_utils import (
@@ -135,7 +137,8 @@ def show_docs(filename):
 
 
 # Chain name not in the request form, but in the endpoint!
-# New namespace ( /chains/ ) added to prevent user from envoking other static routes
+# New namespace ( /chains/ ) added to prevent user from
+# invoking other static routes
 @home.route('/chains/<chain_name>/', methods=['POST', 'GET'])
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
@@ -390,101 +393,94 @@ def create_algorithm(algorithm=None):
                 os.rename(old_dest_path, new_dest_path)
                 dest_path = new_dest_path
 
-            with open(os.path.join(path, 'chains.json'), 'r+') as c_file:
-                chain_content = json.loads(c_file.read())
-                for c_key, c_val in enumerate(chain_content):
-                    for c_alg in chain_content[c_val]:
-                        if f['name'] != algorithm:
-                            # handle algorithm name change
-                            if c_alg['algorithm'] == algorithm:
-                                c_alg['algorithm'] = f['name']
-                            elif 'parameters' in c_alg:
-                                for p_key, p_val in enumerate(
-                                        c_alg['parameters']):
-                                    temp_val = c_alg['parameters'][p_val]
-                                    if 'source_algorithm' in temp_val:
-                                        if (
-                                            temp_val[
-                                                'source_algorithm'
-                                            ] == algorithm
-                                        ):
-                                            temp_val[
-                                                'source_algorithm'
-                                            ] = f['name']
-
-                        if len(p_name_changes) > 0:
-                            # handle parameter name changes
-                            if c_alg['algorithm'] == f['name']:
-                                for nc in p_name_changes:
-                                    try:
-                                        c_alg[
-                                            'parameters'
-                                        ][
-                                            nc['new_name']
-                                        ] = c_alg[
-                                            'parameters'
-                                        ].pop(nc['original_name'])
-                                    except KeyError:
-                                        pass
-
-                        if len(del_params) > 0:
-                            # check for and remove parameters that have been
-                            # deleted but are named in chains.json
-                            if 'parameters' in c_alg:
-                                if c_alg['algorithm'] == f['name']:
-                                    for p_key in del_params:
-                                        c_alg['parameters'].pop(p_key, None)
-
-                                    if len(c_alg['parameters']) == 0:
-                                        c_alg.pop('parameters', None)
-                                        c_alg['parameter_source'] = 'user'
-
-                        if len(o_name_changes) > 0:
-                            # handle output name changes
-                            if 'parameters' in c_alg:
-                                for p_key, p_val in enumerate(
-                                        c_alg['parameters']):
-                                    temp_val = c_alg['parameters'][p_val]
-                                    for nc in o_name_changes:
-                                        try:
-                                            if temp_val[
-                                                'source_algorithm'
-                                            ] == f['name']:
-                                                if temp_val[
-                                                    'key'
-                                                ] == nc['original_name']:
-                                                    temp_val[
-                                                        'key'
-                                                    ] = nc['new_name']
-                                        except KeyError:
-                                            pass
-
-                        if len(del_outs) > 0:
-                            # check for parameters that reference deleted
-                            # outputs and remove
-                            if 'parameters' in c_alg:
-                                p_loop = copy.deepcopy(c_alg['parameters'])
-                                for p_key, p_val in enumerate(p_loop):
-                                    temp_val = p_loop[p_val]
-                                    if 'source_algorithm' in temp_val:
-                                        if temp_val[
+            chain_defs = get_chain_def(path)
+            chain_content = chain_defs
+            for c_key, c_val in enumerate(chain_content):
+                for c_alg in chain_content[c_val]:
+                    if f['name'] != algorithm:
+                        # handle algorithm name change
+                        if c_alg['algorithm'] == algorithm:
+                            c_alg['algorithm'] = f['name']
+                        elif 'parameters' in c_alg:
+                            for p_key, p_val in enumerate(
+                                    c_alg['parameters']):
+                                temp_val = c_alg['parameters'][p_val]
+                                if 'source_algorithm' in temp_val:
+                                    if (
+                                        temp_val[
                                             'source_algorithm'
-                                        ] == f['name']:
-                                            if temp_val['key'] in del_outs:
-                                                del c_alg['parameters'][p_val]
+                                        ] == algorithm
+                                    ):
+                                        temp_val[
+                                            'source_algorithm'
+                                        ] = f['name']
+
+                    if len(p_name_changes) > 0:
+                        # handle parameter name changes
+                        if c_alg['algorithm'] == f['name']:
+                            for nc in p_name_changes:
+                                try:
+                                    c_alg[
+                                        'parameters'
+                                    ][
+                                        nc['new_name']
+                                    ] = c_alg[
+                                        'parameters'
+                                    ].pop(nc['original_name'])
+                                except KeyError:
+                                    pass
+
+                    if len(del_params) > 0:
+                        # check for and remove parameters that have been
+                        # deleted but are named in chain definition
+                        if 'parameters' in c_alg:
+                            if c_alg['algorithm'] == f['name']:
+                                for p_key in del_params:
+                                    c_alg['parameters'].pop(p_key, None)
 
                                 if len(c_alg['parameters']) == 0:
                                     c_alg.pop('parameters', None)
                                     c_alg['parameter_source'] = 'user'
 
-                c_file.seek(0)
-                c_file.truncate()
-                c_file.write(json.dumps(
-                    chain_content,
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True
-                ))
+                    if len(o_name_changes) > 0:
+                        # handle output name changes
+                        if 'parameters' in c_alg:
+                            for p_key, p_val in enumerate(
+                                    c_alg['parameters']):
+                                temp_val = c_alg['parameters'][p_val]
+                                for nc in o_name_changes:
+                                    try:
+                                        if temp_val[
+                                            'source_algorithm'
+                                        ] == f['name']:
+                                            if temp_val[
+                                                'key'
+                                            ] == nc['original_name']:
+                                                temp_val[
+                                                    'key'
+                                                ] = nc['new_name']
+                                    except KeyError:
+                                        pass
+
+                    if len(del_outs) > 0:
+                        # check for parameters that reference deleted
+                        # outputs and remove
+                        if 'parameters' in c_alg:
+                            p_loop = copy.deepcopy(c_alg['parameters'])
+                            for p_key, p_val in enumerate(p_loop):
+                                temp_val = p_loop[p_val]
+                                if 'source_algorithm' in temp_val:
+                                    if temp_val[
+                                        'source_algorithm'
+                                    ] == f['name']:
+                                        if temp_val['key'] in del_outs:
+                                            del c_alg['parameters'][p_val]
+
+                            if len(c_alg['parameters']) == 0:
+                                c_alg.pop('parameters', None)
+                                c_alg['parameter_source'] = 'user'
+
+                save_chain_files(path, chain_defs)
 
             if f['license'] != this_alg['license']:
                 save_license_file(source_path, dest_path, f['license'])
@@ -787,8 +783,8 @@ def update_chains():
     except KeyError:
         return make_response('Missing chain definitions', 400)
 
-    with open(os.path.join(path, 'chains.json'), 'w+') as f:
-        json.dump(chains, f, indent=4, separators=(',', ': '))
+    clear_chains(path)
+    save_chain_files(path, chains)
 
     chain_list = ''
     for k, v in chains.items():
