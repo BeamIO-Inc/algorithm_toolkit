@@ -1,4 +1,4 @@
-# Welcome to the Algorithm Toolkit (BETA)!
+# Welcome to the Algorithm Toolkit!
 
 We built the Algorithm Toolkit (ATK) to provide researchers and data anaysts the tools they need to process data quickly and efficiently, so they can focus on actually doing scientific or other analysis work.
 
@@ -168,6 +168,17 @@ sudo yum install python3-devel
 # python 2
 sudo yum install python-devel
 ```
+
+# Docker
+
+This repository contains 2 Docker files
+
+* [atk](/docker/atk/Dockerfile)
+* [atk-dev](/docker/atk-dev/Dockerfile)
+
+Once built and run, Docker containers are generated, which gives users access to easy to use development/deployment tools.
+
+Check out our official [Docker documentation](https://algorithm-toolkit.readthedocs.io/en/latest/docker.html) to learn more
 
 # Contributing
 
