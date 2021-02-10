@@ -43,6 +43,9 @@ def get_algorithm(path):
 
 def get_chain_def(path, chain_name=None):
     chain_path = os.path.join(path, 'chains')
+    if not os.path.exists(chain_path):
+        os.makedirs(chain_path)
+
     chain_defs = {}
 
     for root, dirs, files in os.walk(chain_path):
