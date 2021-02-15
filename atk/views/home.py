@@ -45,7 +45,7 @@ from ..utils.home_utils import (
     check_chain_request_form,
     process_chain_request
 )
-from cli.cli import do_uninstall
+from atk_cli.cli import do_uninstall
 
 from . import home
 

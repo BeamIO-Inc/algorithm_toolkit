@@ -4,8 +4,8 @@ import json
 import numpy as np
 import re
 
-from algorithm_toolkit import app
-from algorithm_toolkit import AlgorithmException
+from atk import app
+from atk import AlgorithmException
 
 
 class Algorithm:

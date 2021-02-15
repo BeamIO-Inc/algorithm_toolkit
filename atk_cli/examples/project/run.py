@@ -1,4 +1,4 @@
-from algorithm_toolkit import app
+from atk import app
 
 
 if (__name__) == '__main__':

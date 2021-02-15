@@ -1,6 +1,6 @@
 import os
 
-from algorithm_toolkit import Algorithm, AlgorithmChain
+from atk import Algorithm, AlgorithmChain
 from utils.globalmaptiles import GlobalMercator
 from utils.image_utils import tile_fname_to_x_y_zoom, num2deg, make_uint8_mask
 

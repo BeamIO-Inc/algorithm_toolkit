@@ -4,7 +4,7 @@ import os
 from multiprocessing import Pool
 from requests.exceptions import RequestException
 
-from algorithm_toolkit import Algorithm, AlgorithmChain
+from atk import Algorithm, AlgorithmChain
 from utils.globalmaptiles import GlobalMercator
 from utils.image_utils import globalmercator_bounds_2_shapely_polygon
 

@@ -3,10 +3,10 @@ from __future__ import division
 import json
 import os
 
-from algorithm_toolkit import app
+from atk import app
 
-from algorithm_toolkit.utils.data_utils import find_in_dict, test_json_serialize
-from algorithm_toolkit.utils.file_utils import (
+from atk.utils.data_utils import find_in_dict, test_json_serialize
+from atk.utils.file_utils import (
     make_dir_if_not_exists,
     remove_folder
 )

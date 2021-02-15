@@ -6,12 +6,12 @@ import importlib
 import os
 import traceback
 
-from algorithm_toolkit import app
+from atk import app
 from algorithm_toolkit.algorithm_exception import AlgorithmException
 from algorithm_toolkit.chain_ledger import ChainLedger
 
-from algorithm_toolkit.utils.data_utils import text2int
-from algorithm_toolkit.utils.file_utils import (
+from atk.utils.data_utils import text2int
+from atk.utils.file_utils import (
     get_json_path,
     get_algorithm,
     make_dir_if_not_exists,

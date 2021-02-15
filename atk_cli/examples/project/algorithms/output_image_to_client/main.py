@@ -1,6 +1,6 @@
 import base64
 
-from algorithm_toolkit import Algorithm, AlgorithmChain
+from atk import Algorithm, AlgorithmChain
 
 
 class Main(Algorithm):
