@@ -7,7 +7,7 @@ Docker
 Building the atk Docker image
 =============================
 
-If you have `Docker <https://docs.docker.com/get-docker/>`_ installed, you can build the base Docker image for the ATK:
+If you have `Docker <https://docs.docker.com/get-docker/>`__ installed, you can build the base Docker image for the ATK:
 
 .. note::
 
@@ -19,7 +19,7 @@ If you have `Docker <https://docs.docker.com/get-docker/>`_ installed, you can b
     $ cd algorithm_toolkit
     $ docker build -t atk -f ./docker/atk/Dockerfile .
 
-Visit `here <https://docs.docker.com/develop/develop-images/baseimages/>`_ to learn more about base Docker images.
+Visit `here <https://docs.docker.com/develop/develop-images/baseimages/>`__ to learn more about base Docker images.
 
 Running the atk Docker image (Optional)
 =====================================================
@@ -117,7 +117,7 @@ Volume mounting allows our container to store our work on a directory on our loc
 
 This way, if something happens to our container, we will maintain all of the work we have done.
 
-* You can learn more about volume mounting `here <https://docs.docker.com/storage/volumes/>`_.
+* You can learn more about volume mounting `here <https://docs.docker.com/storage/volumes/>`__.
 
 Volume mounting is defined when running the atk-dev Docker image:
 
