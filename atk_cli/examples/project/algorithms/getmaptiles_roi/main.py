@@ -4,7 +4,9 @@ import os
 from multiprocessing import Pool
 from requests.exceptions import RequestException
 
-from atk import Algorithm, AlgorithmChain
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_chain_ledger import AtkChainLedger
+
 from utils.globalmaptiles import GlobalMercator
 from utils.image_utils import globalmercator_bounds_2_shapely_polygon
 
@@ -41,10 +43,10 @@ def get_tile(dat):
     return None
 
 
-class Main(Algorithm):
+class Main(AtkAlgorithm):
 
     def run(self):
-        cl = self.cl  # type: AlgorithmChain.ChainLedger
+        cl = self.cl  # type: AtkChainLedger
         params = self.params  # type: dict
 
         self.logger.info("getting map tiles")

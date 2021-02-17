@@ -6,6 +6,7 @@ import traceback
 from algorithm_toolkit.algorithm_chain import AlgorithmChain
 from algorithm_toolkit.utils import make_dir_if_not_exists
 
+from atk.atk_chain_ledger import AtkChainLedger
 from atk import app
 
 
@@ -15,6 +16,10 @@ class AtkAlgorithmChain(AlgorithmChain):
         AlgorithmChain.__init__(self, path, passed_chain)
         self.logger = app.logger
         self.config = app.config
+
+    def create_ledger(self, status_key):
+        self.chain_ledger = AtkChainLedger(status_key)
+        return self.chain_ledger
 
     def call_batch(self, iter_param, iter_type, iter_value):
         alg, param = iter_param.split('__')

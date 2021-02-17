@@ -1,10 +1,11 @@
-from atk import AtkAlgorithm, AtkAlgorithmChain
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_chain_ledger import AtkChainLedger
 
 
 class Main(AtkAlgorithm):
 
     def run(self):
-        cl = self.cl  # type: AtkAlgorithmChain.ChainLedger
+        cl = self.cl  # type: AtkChainLedger
         params = self.params  # type: dict
         # Add your algorithm code here
 

@@ -1,6 +1,8 @@
 import os
 
-from atk import Algorithm, AlgorithmChain
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_chain_ledger import AtkChainLedger
+
 from utils.globalmaptiles import GlobalMercator
 from utils.image_utils import tile_fname_to_x_y_zoom, num2deg, make_uint8_mask
 
@@ -8,10 +10,10 @@ import numpy as np
 from PIL import Image
 
 
-class Main(Algorithm):
+class Main(AtkAlgorithm):
 
     def run(self):
-        cl = self.cl  # type: AlgorithmChain.ChainLedger
+        cl = self.cl  # type: AtkChainLedger
         params = self.params  # type: dict
 
         self.logger.info("stitching map tiles")

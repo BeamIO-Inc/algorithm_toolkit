@@ -1,12 +1,13 @@
 import base64
 
-from atk import Algorithm, AlgorithmChain
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_chain_ledger import AtkChainLedger
 
 
-class Main(Algorithm):
+class Main(AtkAlgorithm):
 
     def run(self):
-        cl = self.cl  # type: AlgorithmChain.ChainLedger
+        cl = self.cl  # type: AtkChainLedger
         params = self.params  # type: dict
 
         self.logger.info("sending image to client")
