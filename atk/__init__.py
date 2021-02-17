@@ -7,27 +7,25 @@ from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 
-from algorithm_toolkit.algorithm import Algorithm
-from algorithm_toolkit.algorithm_chain import AlgorithmChain
-from algorithm_toolkit.chain_ledger import ChainLedger
 from algorithm_toolkit.algorithm_exception import AlgorithmException
-
-from .atk_test import AlgorithmTestCase
-from .decorators import check_api_key, check_management_api_key, debug_only
-from .utils.data_utils import (
+from algorithm_toolkit.utils import (
     find_in_dict,
-    text2int
-)
-from .utils.file_utils import (
+    text2int,
     get_algorithm,
     get_chain_def,
     get_json_path,
     make_dir_if_not_exists
 )
 
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_algorithm_chain import AtkAlgorithmChain
+from atk.atk_chain_ledger import AtkChainLedger
+from atk.atk_test import AlgorithmTestCase
+from atk.decorators import check_api_key, check_management_api_key, debug_only
+
 
 __all__ = [
-    Algorithm, AlgorithmChain, ChainLedger, AlgorithmException, AlgorithmTestCase,
+    AtkAlgorithm, AtkAlgorithmChain, AtkChainLedger, AlgorithmException, AlgorithmTestCase,
     check_api_key, debug_only, get_algorithm, get_chain_def, get_json_path,
     make_dir_if_not_exists, find_in_dict, text2int, check_management_api_key
 ]

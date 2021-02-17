@@ -1,17 +1,18 @@
 from __future__ import division
 
 import json
-import numpy as np
 import re
+import logging
 
-from atk import app
-from atk import AlgorithmException
+import numpy as np
+
+from algorithm_toolkit.algorithm_exception import AlgorithmException
 
 
 class Algorithm:
 
     def __init__(self, cl=None, params=None, **kwargs):
-        self.logger = app.logger
+        self.logger = logging.getLogger('algorithm_toolkit')
         self.name = None
         self.errors = []
         self.params = params

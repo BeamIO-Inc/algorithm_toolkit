@@ -1,13 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import (
-    StringField,
-    IntegerField,
-    TextAreaField,
-    FloatField,
-    BooleanField,
-    SelectField,
-    HiddenField
-)
+from wtforms import StringField, IntegerField, TextAreaField, FloatField, BooleanField, SelectField, HiddenField
 from wtforms.validators import InputRequired, Length, Optional
 from wtforms.widgets import TextInput, Select
 from wtforms.widgets.html5 import NumberInput

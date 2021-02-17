@@ -3,9 +3,11 @@ import os
 from flask import jsonify, request
 from flask_cors import cross_origin
 
+from atk import app, check_management_api_key, debug_only
+from atk.utils import vital_stats
+
 from . import manage
-from .. import app, check_management_api_key, debug_only
-from ..utils.manage_utils import vital_stats
+
 
 management_api_key = app.config['ATK_MANAGEMENT_API_KEY']
 api_key = app.config['API_KEY']

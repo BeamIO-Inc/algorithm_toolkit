@@ -1,24 +1,19 @@
-import requests
 import json
 import os
+import distro
+import pkg_resources
+import platform
+import psutil
 
-from flask import (
-    make_response,
-    jsonify
-)
-from .. import (
-    AlgorithmChain,
-    app
-)
-from .data_utils import create_random_string
-from .file_utils import (
-    get_chain_def,
-    make_dir_if_not_exists
-)
+from flask import make_response, jsonify
+
+from algorithm_toolkit.utils import create_random_string, get_chain_def, make_dir_if_not_exists
+
+from atk.atk_algorithm_chain import AtkAlgorithmChain
+from atk import app
 
 
 def check_chain_request_form(request, chain_name, path):
-
     chain = None
     status_key = None
     run_mode = None
@@ -93,7 +88,6 @@ def check_chain_request_form(request, chain_name, path):
 
 
 def process_chain_request(checked_response, path):
-
     chain = checked_response['chain']
     status_key = checked_response['status_key']
     run_mode = checked_response['run_mode']
@@ -101,7 +95,7 @@ def process_chain_request(checked_response, path):
     iter_type = checked_response['iter_type']
     iter_value = checked_response['iter_value']
 
-    c_obj = AlgorithmChain(path, chain)
+    c_obj = AtkAlgorithmChain(path, chain)
     if c_obj.chain_definition == {}:
         return make_response('Chain name not found', 404)
 
@@ -121,7 +115,6 @@ def process_chain_request(checked_response, path):
         c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
 
         if 'CHAIN_HISTORY' in app.config:
-
             if app.config['CHAIN_HISTORY_LENGTH'] > 0:
                 ch = app.config['CHAIN_HISTORY']
 
@@ -138,3 +131,55 @@ def process_chain_request(checked_response, path):
         return make_response(jsonify(response), 400)
 
     return jsonify(response)
+
+
+def bytes2human(n):
+    # http://code.activestate.com/recipes/578019
+    # >>> bytes2human(10000)
+    # '9.8K'
+    # >>> bytes2human(100001221)
+    # '95.4M'
+    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << (i + 1) * 10
+    for s in reversed(symbols):
+        if n >= prefix[s]:
+            value = float(n) / prefix[s]
+            return '%.1f%s' % (value, s)
+    return "%sB" % n
+
+
+def vital_stats():
+    vitals = {}
+    system = platform.system()
+    if system == 'Darwin':
+        os = 'Mac OS ' + platform.mac_ver()[0]
+    elif system == 'Windows':
+        os = 'Windows ' + ' '.join(str(x) for x in platform.win32_ver())
+    elif system == 'Linux':
+        os = ' '.join(str(x) for x in distro.linux_distribution())
+    elif system == 'Java':
+        os = 'Java ' + platform.java_ver()[0]
+    else:
+        os = platform.platform()
+    vitals['os'] = os
+    vitals['python'] = platform.python_version()
+    vitals['atk'] = pkg_resources.get_distribution('algorithm_toolkit').version
+    vitals['cpu'] = psutil.cpu_percent(interval=0.1, percpu=True)
+
+    disk_stats = psutil.disk_usage('/')
+    vitals['disk'] = {
+        'free': bytes2human(disk_stats.free),
+        'percent': disk_stats.percent,
+        'total': bytes2human(disk_stats.total),
+        'used': bytes2human(disk_stats.used)
+    }
+
+    mem_stats = psutil.virtual_memory()
+    vitals['mem'] = {
+        'used': mem_stats.used,
+        'percent': mem_stats.percent
+    }
+
+    return vitals

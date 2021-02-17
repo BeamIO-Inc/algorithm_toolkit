@@ -19,35 +19,39 @@ from requests.exceptions import RequestException
 from werkzeug.datastructures import MultiDict
 from wtforms import validators
 
-from .. import (
+from atk import (
     check_api_key,
     debug_only,
     app,
 )
-from ..forms import (
+
+from atk.forms import (
     AlgorithmForm,
     set_field,
     AlgorithmCreateForm,
     AlgorithmParameterForm,
     AlgorithmOutputForm
 )
-from ..utils.file_utils import (
+
+from algorithm_toolkit.utils import (
     get_json_path,
     get_chain_def,
     get_algorithm,
     make_dir_if_not_exists,
     list_algorithms,
     clear_chains,
-    save_chain_files
+    save_chain_files,
+    create_random_string,
 )
-from ..utils.data_utils import create_random_string
-from ..utils.home_utils import (
+
+from atk.utils import (
     check_chain_request_form,
     process_chain_request
 )
 from atk_cli.cli import do_uninstall
 
 from . import home
+
 
 path = app.config['ATK_PATH']
 api_key = app.config['API_KEY']

@@ -3,15 +3,10 @@ from __future__ import division
 import json
 import os
 
-from atk import app
-
-from atk.utils.data_utils import find_in_dict, test_json_serialize
-from atk.utils.file_utils import (
-    make_dir_if_not_exists,
-    remove_folder
-)
-
 from markupsafe import escape
+
+from algorithm_toolkit import store, config
+from algorithm_toolkit.utils import find_in_dict, test_json_serialize, make_dir_if_not_exists, remove_folder
 
 
 class ChainLedger(object):
@@ -30,6 +25,8 @@ class ChainLedger(object):
     '''
 
     def __init__(self, status_key):
+        self.store = store
+        self.config = config
         self.status_key = status_key
         self.metadata = {}
         self.history = []
@@ -84,7 +81,7 @@ class ChainLedger(object):
         status = escape(str(status))
         chain_status['latest_msg'] = status
         try:
-            all_msg = app.config[self.status_key]['all_msg'] + '  \n'
+            all_msg = self.store[self.status_key]['all_msg'] + '  \n'
             all_msg += status
         except KeyError:
             all_msg = status
@@ -92,14 +89,14 @@ class ChainLedger(object):
         chain_status['algorithm_percent_complete'] = percent
         chain_status['chain_percent_complete'] = self.chain_percent
         chain_status['batch_percent_complete'] = self.batch_percent
-        app.config[self.status_key] = chain_status
+        self.store[self.status_key] = chain_status
 
     def get_run_state(self):
         # set run_state for the chain or batch job
         # 0 = cancel
         # 1 = running
-        if self.status_key + '_run_state' in app.config:
-            return app.config[self.status_key + '_run_state']
+        if self.status_key + '_run_state' in self.store:
+            return self.store[self.status_key + '_run_state']
         return 1
 
     def history_to_json(self):
@@ -154,13 +151,13 @@ class ChainLedger(object):
 
     def make_working_folders(self):
         base_path = os.path.join(
-            app.config['DEFAULT_WORKING_ROOT'], self.status_key)
+            self.config['DEFAULT_WORKING_ROOT'], self.status_key)
         temp_path = os.path.join(base_path, 'temp')
         make_dir_if_not_exists(temp_path)
 
     def get_temp_folder(self):
         return os.path.join(
-            app.config['DEFAULT_WORKING_ROOT'], self.status_key, 'temp')
+            self.config['DEFAULT_WORKING_ROOT'], self.status_key, 'temp')
 
     def clear_temp_folder(self):
         remove_folder(self.get_temp_folder())
@@ -168,5 +165,5 @@ class ChainLedger(object):
 
     def remove_working_folders(self):
         base_path = os.path.join(
-            app.config['DEFAULT_WORKING_ROOT'], self.status_key)
+            self.config['DEFAULT_WORKING_ROOT'], self.status_key)
         remove_folder(base_path)
