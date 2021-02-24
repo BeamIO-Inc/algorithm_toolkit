@@ -73,19 +73,20 @@ def cp_cmd(project_name, example, no_dependencies, with_docs, quiet):
     else:
         os.mkdir(project_name)
         path = os.path.abspath(project_name)
+        source_path = os.path.join(this_path, 'sources')
 
-        create_file(project_name, this_path, path, 'licenses', '.json')
-        create_file(project_name, this_path, path, 'config')
-        create_file(project_name, this_path, path, '__init__')
-        create_file(project_name, this_path, path, 'run')
-        create_file('', this_path, path, 'gitignore', '.')
+        create_file(project_name, source_path, path, 'licenses', '.json')
+        create_file(project_name, source_path, path, 'config')
+        create_file(project_name, source_path, path, '__init__')
+        create_file(project_name, source_path, path, 'run')
+        create_file('', source_path, path, 'gitignore', '.')
 
         generate_settings(this_path, path)
 
         os.mkdir(os.path.join(path, 'algorithms'))
         create_file(
             project_name,
-            this_path,
+            source_path,
             os.path.join(path, 'algorithms'),
             '__init__'
         )
@@ -128,9 +129,11 @@ def ca_cmd(algorithm_name):
     except OSError:
         return click.echo('Algorithm already exists!')
 
-    create_file(algorithm_name, this_path, dest_path, algorithm_name, input_name='algorithm')
-    create_file(algorithm_name, this_path, dest_path, '__init__')
-    create_file(algorithm_name, this_path, dest_path, 'test_' + algorithm_name, input_name='test_algorithm')
+    source_path = os.path.join(this_path, 'sources')
+
+    create_file(algorithm_name, source_path, dest_path, algorithm_name, input_name='algorithm')
+    create_file(algorithm_name, source_path, dest_path, '__init__')
+    create_file(algorithm_name, source_path, dest_path, 'test_' + algorithm_name, input_name='test_algorithm')
 
     alg_json = {
         'name': algorithm_name,
@@ -320,7 +323,9 @@ def generate_settings(this_path, path, is_prod=False):
     else:
         settings += '\nFLASK_ENV=development'
 
-    create_file(settings, this_path, path, 'env', '.')
+    source_path = os.path.join(this_path, 'sources')
+
+    create_file(settings, source_path, path, 'env', '.')
 
 
 def get_reg_config_option(c, s, o):
