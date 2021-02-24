@@ -3,6 +3,7 @@ import random
 import json
 import os
 import shutil
+import re
 
 p = inflect.engine()
 word_to_number_mapping = {}
@@ -52,30 +53,30 @@ def make_dir_if_not_exists(dir_to_create):
         os.makedirs(dir_to_create)
 
 
-def remove_folder(path):
-    if os.path.exists(path):
-        shutil.rmtree(path)
+def remove_folder(project_path):
+    if os.path.exists(project_path):
+        shutil.rmtree(project_path)
 
 
-def list_algorithms(path):
+def list_algorithms(project_path):
     installed_algs = []
-    alg_path = os.path.join(path, 'algorithms')
+    alg_path = os.path.join(project_path, 'algorithms')
     for root, dirs, files in os.walk(alg_path):
         for algdir in dirs:
             parent = root[root.rfind(os.sep) + 1:]
             if parent == 'algorithms':
-                temp_path = get_json_path(path, algdir)
+                temp_path = get_json_path(project_path, algdir)
             else:
-                temp_path = get_json_path(path, parent + os.sep + algdir)
+                temp_path = get_json_path(project_path, parent + os.sep + algdir)
             temp_alg = get_algorithm(temp_path)
             if temp_alg != {}:
                 installed_algs.append(temp_alg)
     return sorted(installed_algs, key=lambda k: k['name'])
 
 
-def get_algorithm(path):
+def get_algorithm(project_path):
     try:
-        with open(path, 'r') as alg_file:
+        with open(project_path, 'r') as alg_file:
             try:
                 alg_def = json.load(alg_file)
             except ValueError:
@@ -85,8 +86,8 @@ def get_algorithm(path):
     return alg_def
 
 
-def get_chain_def(path, chain_name=None):
-    chain_path = os.path.join(path, 'chains')
+def get_chain_def(project_path, chain_name=None):
+    chain_path = os.path.join(project_path, 'chains')
     if not os.path.exists(chain_path):
         os.makedirs(chain_path)
 
@@ -115,8 +116,8 @@ def get_chain_def(path, chain_name=None):
         return chain_defs
 
 
-def clear_chains(path):
-    chain_path = os.path.join(path, 'chains')
+def clear_chains(project_path):
+    chain_path = os.path.join(project_path, 'chains')
 
     for root, dirs, files in os.walk(chain_path):
         for f in files:
@@ -126,16 +127,25 @@ def clear_chains(path):
                 pass
 
 
-def save_chain_files(path, chains):
+def save_chain_files(project_path, chains):
     for k, v in chains.items():
         try:
-            with open(os.path.join(path, 'chains', k + '.json'), 'w') as f:
+            with open(os.path.join(project_path, 'chains', k + '.json'), 'w') as f:
                 temp_json = {k: v}
                 json.dump(temp_json, f, indent=4, separators=(',', ': '))
         except IOError:
             pass
 
 
-def get_json_path(path, a):
+def get_json_path(project_path, a):
     a = a.replace('\\', os.sep).replace('/', os.sep)
-    return os.path.join(path, 'algorithms', a, 'algorithm.json')
+    return os.path.join(project_path, 'algorithms', a, 'algorithm.json')
+
+
+def camel_to_snake(name):
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
+def snake_to_camel(name):
+    return ''.join(word.title() for word in name.split('_'))

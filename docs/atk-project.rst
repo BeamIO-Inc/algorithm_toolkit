@@ -63,10 +63,10 @@ The ``config.py`` file contains different project settings. A new project's conf
 
 
     SECRET_KEY = os.environ['FLASK_SECRET_KEY']
-    ATK_PATH = os.path.dirname(os.path.abspath(__file__))
+    ATK_PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
     API_KEY = os.environ['ATK_API_KEY']
 
-    sys.path.append(ATK_PATH)
+    sys.path.append(ATK_PROJECT_PATH)
     dirname = os.path.dirname
     logfile = os.path.join(dirname(__file__), 'logs', 'app.log')
     handler = RotatingFileHandler(logfile, maxBytes=10240, backupCount=10)

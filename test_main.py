@@ -69,7 +69,7 @@ class ATKTestCase(TestCase):
                 'https://tdprocess.com'
             ]
         )
-        self.assertEqual(config['ATK_PATH'], test_alg_path)
+        self.assertEqual(config['ATK_PROJECT_PATH'], test_alg_path)
         self.assertEqual(
             self.app.jinja_loader.searchpath[0], test_alg_path + '/templates')
 

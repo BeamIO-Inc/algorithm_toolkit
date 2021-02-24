@@ -8,7 +8,7 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def setUp(self):
         self.params = {}
-        path = app.config['ATK_PATH']
+        path = app.config['ATK_PROJECT_PATH']
         test_chain = {
             'chain_name': 'test_chain',
             'algorithms': []

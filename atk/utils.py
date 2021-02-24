@@ -13,8 +13,8 @@ from atk.atk_algorithm_chain import AtkAlgorithmChain
 from atk import app
 
 
-def check_chain_request_form(request, chain_name, path):
-    chain = None
+def process_chain_request(request, chain_name, project_path):
+    chain_params = None
     status_key = None
     run_mode = None
     iter_param = None
@@ -23,9 +23,9 @@ def check_chain_request_form(request, chain_name, path):
 
     if request.method == 'POST':
         try:
-            chain = request.form['chain']
+            chain_params = request.form['chain']
         except KeyError:
-            chain = None
+            chain_params = None
 
         try:
             status_key = request.form['status_key']
@@ -46,7 +46,7 @@ def check_chain_request_form(request, chain_name, path):
         else:
             run_mode = 'single'
     elif request.method == 'GET':  # pragma: no branch
-        chain = request.args.get('chain', None)
+        chain_params = request.args.get('chain', None)
         status_key = request.args.get('status_key', None)
         run_mode = request.args.get('run_mode', 'single')
         iter_param = request.args.get('iter_param', None)
@@ -56,62 +56,44 @@ def check_chain_request_form(request, chain_name, path):
     if status_key is None:
         status_key = create_random_string(http_safe=True)
 
-    if chain is None:
+    if chain_params is None:
         return make_response('Missing chain parameter in request', 400)
 
-    if chain.lower() == 'from_global':
+    if chain_params.lower() == 'from_global':
         try:
-            chain = app.config['CHAIN_DATA'].pop(status_key)
+            chain_params = app.config['CHAIN_DATA'].pop(status_key)
         except ValueError:
             return make_response(
                 'Chain parameter not present in app configuration', 400)
     else:
         try:
-            chain = json.loads(chain)
+            chain_params = json.loads(chain_params)
         except ValueError:
             return make_response('Chain parameter not properly formatted', 400)
 
-    if chain_name not in get_chain_def(path):
+    if chain_name not in get_chain_def(project_path):
         return make_response('Chain name does not exist', 400)
 
-    if 'algorithms' not in chain:
+    if 'algorithms' not in chain_params:
         return make_response('Algorithms not defined', 400)
 
-    return ({
-        'chain': chain,
-        'status_key': status_key,
-        'run_mode': run_mode,
-        'iter_param': iter_param,
-        'iter_type': iter_type,
-        'iter_value': iter_value
-    })
-
-
-def process_chain_request(checked_response, path):
-    chain = checked_response['chain']
-    status_key = checked_response['status_key']
-    run_mode = checked_response['run_mode']
-    iter_param = checked_response['iter_param']
-    iter_type = checked_response['iter_type']
-    iter_value = checked_response['iter_value']
-
-    c_obj = AtkAlgorithmChain(path, chain)
-    if c_obj.chain_definition == {}:
+    c_obj = AtkAlgorithmChain(project_path, chain_name, status_key)
+    if c_obj.algs == {}:
         return make_response('Chain name not found', 404)
 
-    cl = c_obj.create_ledger(status_key)
+    cl = c_obj.create_ledger()
     cl.make_working_folders()
 
     if run_mode == 'single':
-        response = c_obj.call_chain_algorithms()
+        response = c_obj.call_chain_algorithms(chain_params)
         save_fname = status_key + '.json'
 
         if 'CHAIN_LEDGER_HISTORY_PATH' in app.config:
             save_path = os.path.join(
                 app.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
         else:
-            make_dir_if_not_exists(os.path.join(path, 'history'))
-            save_path = os.path.join(path, 'history', save_fname)
+            make_dir_if_not_exists(os.path.join(project_path, 'history'))
+            save_path = os.path.join(project_path, 'history', save_fname)
         c_obj.chain_ledger.save_history_to_json(save_path, pretty=True)
 
         if 'CHAIN_HISTORY' in app.config:

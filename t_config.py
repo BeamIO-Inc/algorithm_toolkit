@@ -3,7 +3,7 @@ import os
 
 from logging import Formatter, StreamHandler
 
-ATK_PATH = os.path.join(os.path.dirname(
+ATK_PROJECT_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'test_project')
 API_KEY = 'testkey'
 PRESERVE_CONTEXT_ON_EXCEPTION = False

@@ -45,7 +45,6 @@ from algorithm_toolkit.utils import (
 )
 
 from atk.utils import (
-    check_chain_request_form,
     process_chain_request
 )
 from atk_cli.cli import do_uninstall
@@ -53,14 +52,14 @@ from atk_cli.cli import do_uninstall
 from . import home
 
 
-path = app.config['ATK_PATH']
+project_path = app.config['ATK_PROJECT_PATH']
 api_key = app.config['API_KEY']
 cors_origins = app.config['CORS_ORIGIN_WHITELIST']
 u_block = '<block type="user_input" id="{randid}">\n'
 
 
 def get_docs_link():
-    if os.path.exists(os.path.join(path, 'docs')):
+    if os.path.exists(os.path.join(project_path, 'docs')):
         link_to_docs = True
     else:
         link_to_docs = False
@@ -123,7 +122,7 @@ def index():
 
     return render_template(
         'index.html',
-        chains=get_chain_def(path),
+        chains=get_chain_def(project_path),
         docs=get_docs_link(),
         ad1=ad1,
         ad2=ad2,
@@ -136,7 +135,7 @@ def index():
 @home.route('/docs/<path:filename>', methods=['GET'])
 @debug_only(app.config)
 def show_docs(filename):
-    docs_path = os.path.join(path, 'docs')
+    docs_path = os.path.join(project_path, 'docs')
     return send_from_directory(docs_path, filename)
 
 
@@ -147,15 +146,7 @@ def show_docs(filename):
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def run_chain(chain_name):
-    # Returns a dictionary or a bad request
-    check = check_chain_request_form(request, chain_name, path)
-
-    if isinstance(check, dict):  # If check is a dict
-        check['chain']['chain_name'] = chain_name
-    else:  # If check not a dict, then it must be a bad request!
-        return check
-    response = process_chain_request(check, path)
-
+    response = process_chain_request(request, chain_name, project_path)
     return response
 
 
@@ -170,11 +161,7 @@ def main():
     except:
         return make_response('Chain name does not exist in request form', 400)
 
-    check = check_chain_request_form(request, chain_name, path)
-    if not isinstance(check, dict):
-        return check
-    response = process_chain_request(check, path)
-
+    response = process_chain_request(request, chain_name, project_path)
     return response
 
 
@@ -195,14 +182,14 @@ def chain_run_status(status_key):
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def list():
-    return jsonify(get_chain_def(path))
+    return jsonify(get_chain_def(project_path))
 
 
 @home.route('/chain_info/<chain>/', methods=['GET'])
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def chain_info(chain):
-    return jsonify(get_chain_def(path, chain))
+    return jsonify(get_chain_def(project_path, chain))
 
 
 def set_param_source(alg, param):
@@ -223,10 +210,10 @@ def set_param_source(alg, param):
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def chain_algorithms(chain):
-    chain_obj = get_chain_def(path, chain)
+    chain_obj = get_chain_def(project_path, chain)
     alg_list = []
     for alg in chain_obj:
-        a_path = get_json_path(path, alg['algorithm'])
+        a_path = get_json_path(project_path, alg['algorithm'])
         temp_alg = get_algorithm(a_path)
         for rp in temp_alg['required_parameters']:
             try:
@@ -253,7 +240,7 @@ def chain_algorithms(chain):
 @cross_origin(origins=cors_origins)
 @check_api_key(request, api_key)
 def algorithm_info(algorithm=None):
-    a_path = get_json_path(path, algorithm)
+    a_path = get_json_path(project_path, algorithm)
     return jsonify(get_algorithm(a_path))
 
 
@@ -262,8 +249,8 @@ def algorithm_info(algorithm=None):
 def algorithms():
     return render_template(
         'algorithms.html',
-        algs=list_algorithms(path),
-        chains=get_chain_def(path),
+        algs=list_algorithms(project_path),
+        chains=get_chain_def(project_path),
         docs=get_docs_link(),
         nav='algorithms'
     )
@@ -274,7 +261,7 @@ def algorithms():
 @debug_only(app.config)
 def create_algorithm(algorithm=None):
     if algorithm is not None:
-        a_path = get_json_path(path, algorithm)
+        a_path = get_json_path(project_path, algorithm)
         this_alg = get_algorithm(a_path)
         if this_alg == {}:
             return make_response('Algorithm not found', 404, {})
@@ -295,7 +282,7 @@ def create_algorithm(algorithm=None):
     else:
         form = AlgorithmCreateForm()
 
-    algs = [x['name'] for x in list_algorithms(path)]
+    algs = [x['name'] for x in list_algorithms(project_path)]
     if algorithm is not None:
         algs.remove(algorithm)
     form.name.validators = [validators.NoneOf(
@@ -354,7 +341,7 @@ def create_algorithm(algorithm=None):
             o.pop('original_name')
         temp_alg['outputs'] = outs
 
-        dest_path = os.path.join(path, 'algorithms', temp_alg['name'])
+        dest_path = os.path.join(project_path, 'algorithms', temp_alg['name'])
         source_path = os.path.dirname(os.path.abspath(__file__))
         source_path = os.path.abspath(os.path.join(
             source_path, os.pardir, os.pardir, 'cli', 'sources'))
@@ -382,10 +369,10 @@ def create_algorithm(algorithm=None):
             write_readme()
         else:
             if f['name'] != algorithm:
-                old_dest_path = os.path.join(path, 'algorithms', algorithm)
+                old_dest_path = os.path.join(project_path, 'algorithms', algorithm)
                 new_dest_path = os.path.join(
-                    path, 'algorithms', temp_alg['name'])
-                new_dest_root = os.path.join(path, 'algorithms')
+                    project_path, 'algorithms', temp_alg['name'])
+                new_dest_root = os.path.join(project_path, 'algorithms')
                 if '/' in temp_alg['name']:
                     new_dest_root = os.path.join(
                         new_dest_root, temp_alg['name'].split('/')[0])
@@ -397,7 +384,7 @@ def create_algorithm(algorithm=None):
                 os.rename(old_dest_path, new_dest_path)
                 dest_path = new_dest_path
 
-            chain_defs = get_chain_def(path)
+            chain_defs = get_chain_def(project_path)
             chain_content = chain_defs
             for c_key, c_val in enumerate(chain_content):
                 for c_alg in chain_content[c_val]:
@@ -484,7 +471,7 @@ def create_algorithm(algorithm=None):
                                 c_alg.pop('parameters', None)
                                 c_alg['parameter_source'] = 'user'
 
-                save_chain_files(path, chain_defs)
+                save_chain_files(project_path, chain_defs)
 
             if f['license'] != this_alg['license']:
                 save_license_file(source_path, dest_path, f['license'])
@@ -511,7 +498,7 @@ def create_algorithm(algorithm=None):
         o_form=o_form,
         docs=get_docs_link(),
         algs=algs,
-        chains=get_chain_def(path),
+        chains=get_chain_def(project_path),
         nav='algorithms'
     )
 
@@ -554,13 +541,13 @@ def delete_algorithm(algorithm):
 @home.route('/algorithm/copy/<path:algorithm>/', methods=['GET'])
 @debug_only(app.config)
 def copy_algorithm(algorithm):
-    source_path = os.path.join(path, 'algorithms', algorithm)
+    source_path = os.path.join(project_path, 'algorithms', algorithm)
     new_alg = algorithm + '_copy'
     alg_iterator = 0
-    while os.path.isdir(os.path.join(path, 'algorithms', new_alg)):
+    while os.path.isdir(os.path.join(project_path, 'algorithms', new_alg)):
         alg_iterator += 1
         new_alg = algorithm + '_copy' + str(alg_iterator)
-    dest_path = os.path.join(path, 'algorithms', new_alg)
+    dest_path = os.path.join(project_path, 'algorithms', new_alg)
     shutil.copytree(source_path, dest_path)
     this_alg = os.path.join(dest_path, 'algorithm.json')
     temp_alg = get_algorithm(this_alg)
@@ -593,15 +580,15 @@ def chain_builder():
     drop_str += '["sixth","sixth"],'
     drop_str += ']), "occurrence");'
 
-    algpath = os.path.join(path, 'algorithms')
+    algpath = os.path.join(project_path, 'algorithms')
 
     for root, dirs, files in os.walk(algpath):
         for algdir in dirs:
             parent = root[root.rfind(os.sep) + 1:]
             if parent == 'algorithms':
-                temp_path = get_json_path(path, algdir)
+                temp_path = get_json_path(project_path, algdir)
             else:
-                temp_path = get_json_path(path, parent + os.sep + algdir)
+                temp_path = get_json_path(project_path, parent + os.sep + algdir)
             temp_alg = get_algorithm(temp_path)
             all_algs.append(temp_alg)
             if temp_alg != {}:  # pragma: no branch
@@ -694,7 +681,7 @@ def chain_builder():
                 block_list.append(this_block)
                 block_scripts.append(this_script)
 
-    chain_obj = get_chain_def(path)
+    chain_obj = get_chain_def(project_path)
 
     return render_template(
         'chain_builder.html',
@@ -741,10 +728,10 @@ def add_parameter_blocks(params, chain_alg):
 @home.route('/chain_builder/get_blocks/<chain>/', methods=['GET'])
 @debug_only(app.config)
 def get_blocks(chain):
-    chain_obj = get_chain_def(path)
+    chain_obj = get_chain_def(project_path)
     alg_count = 0
     for chain_alg in chain_obj[chain]:
-        temp_path = get_json_path(path, chain_alg['algorithm'])
+        temp_path = get_json_path(project_path, chain_alg['algorithm'])
         temp_alg = get_algorithm(temp_path)
         if alg_count == 0:
             temp_block = '<xml xmlns="http://www.w3.org/1999/xhtml" id="'
@@ -787,8 +774,8 @@ def update_chains():
     except KeyError:
         return make_response('Missing chain definitions', 400)
 
-    clear_chains(path)
-    save_chain_files(path, chains)
+    clear_chains(project_path)
+    save_chain_files(project_path, chains)
 
     chain_list = ''
     for k, v in chains.items():
@@ -823,11 +810,11 @@ def test_run(chain_name):
     chain = {}
     alg_choices = []
 
-    chain_definition = get_chain_def(path, chain_name)
+    chain_definition = get_chain_def(project_path, chain_name)
 
     for a in chain_definition:
         a_name = a['algorithm']
-        json_path = get_json_path(path, a_name)
+        json_path = get_json_path(project_path, a_name)
         with open(json_path) as json_file:
             alg_definition = json.load(json_file)
 
@@ -883,7 +870,7 @@ def test_run(chain_name):
         fetching_results=fetching_results,
         chain=chain,
         chain_name=chain_name,
-        chains=get_chain_def(path),
+        chains=get_chain_def(project_path),
         docs=get_docs_link(),
         nav='test_run'
     )

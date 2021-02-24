@@ -51,7 +51,7 @@ from .views.manage import manage
 app.register_blueprint(home)
 app.register_blueprint(manage)
 
-app.jinja_loader.searchpath.insert(0, app.config['ATK_PATH'] + '/templates')
+app.jinja_loader.searchpath.insert(0, app.config['ATK_PROJECT_PATH'] + '/templates')
 
 csrf = CSRFProtect(app)
 csrf.exempt(main)

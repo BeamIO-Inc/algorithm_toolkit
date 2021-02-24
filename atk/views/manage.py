@@ -38,7 +38,7 @@ def get_vitals():
 @cross_origin(origins=cors_origins)
 @check_management_api_key(request, api_key, management_api_key)
 def get_log():
-    log_path = os.path.join(app.config['ATK_PATH'], 'logs', 'app.log')
+    log_path = os.path.join(app.config['ATK_PROJECT_PATH'], 'logs', 'app.log')
 
     if os.path.isfile(log_path):
         with open(log_path, 'r') as log_file:
@@ -58,7 +58,7 @@ def get_ledger(status_key):
         if run_mode == 'batch':
             filename = 'batch_' + filename
 
-    ledger_path = os.path.join(app.config['ATK_PATH'], 'history', filename)
+    ledger_path = os.path.join(app.config['ATK_PROJECT_PATH'], 'history', filename)
 
     if os.path.isfile(ledger_path):
         with open(ledger_path, 'r') as ledger_file:

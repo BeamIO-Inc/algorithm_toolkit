@@ -5,6 +5,6 @@ from atk import app
 
 class AtkAlgorithm(Algorithm):
 
-    def __init__(self):
-        Algorithm.__init__(self)
+    def __init__(self, cl, params, **kwargs):
+        super(AtkAlgorithm, self).__init__(cl, params, **kwargs)
         self.logger = app.logger

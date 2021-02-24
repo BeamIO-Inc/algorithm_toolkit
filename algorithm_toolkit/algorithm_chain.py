@@ -5,27 +5,28 @@ import logging
 
 from algorithm_toolkit.algorithm_exception import AlgorithmException
 from algorithm_toolkit.chain_ledger import ChainLedger
-from algorithm_toolkit.utils import text2int, get_json_path, get_algorithm, get_chain_def
+from algorithm_toolkit.utils import text2int, get_json_path, get_algorithm, get_chain_def, create_random_string, \
+    snake_to_camel
 
 
 class AlgorithmChain(object):
 
-    def __init__(self, path, passed_chain):
+    def __init__(self, project_path, chain_name):
         self.logger = logging.getLogger('algorithm_toolkit')
-        self.atk_path = path
-        self.chain_name = passed_chain['chain_name']
-        self.algs = passed_chain['algorithms']
+        self.project_path = project_path
+        self.chain_name = chain_name
         self.chain_ledger = None
-        self.chain_definition = get_chain_def(path, self.chain_name)
+        self.algs = get_chain_def(project_path, self.chain_name)
+        self.status_key = create_random_string()
 
-    def create_ledger(self, status_key):
-        self.chain_ledger = ChainLedger(status_key)
+    def create_ledger(self):
+        self.chain_ledger = ChainLedger(self.status_key)
         return self.chain_ledger
 
     def check_licenses(self):  # pragma: no cover
         pass
 
-    def call_chain_algorithms(self):
+    def call_chain_algorithms(self, chain_params):
         cl = self.chain_ledger
         algs = self.algs
         cl.set_status('Starting chain run...', 0)
@@ -33,19 +34,19 @@ class AlgorithmChain(object):
         import time
         chain_length = len(algs)
         cl.chain_percent = 0
-        for idx, a in enumerate(algs):
+        for idx, alg in enumerate(algs):
             cl.chain_percent = int(idx / chain_length * 100)
             start = time.time()
-            cl.set_status('Running algorithm: ' + a['name'])
+            cl.set_status('Running algorithm: ' + alg['algorithm'])
 
             try:
-                temp_params = a['parameters']
+                temp_params = chain_params['algorithms'][idx]['parameters']
             except KeyError:
                 temp_params = {}
 
             try:
-                cl = self.call_algorithm(a['name'], temp_params, idx)
-                cl.archive_metadata(a['name'], temp_params)
+                cl = self.call_algorithm(alg['algorithm'], temp_params, idx)
+                cl.archive_metadata(alg['algorithm'], temp_params)
                 if idx != len(algs) - 1:
                     cl.clear_current_metadata()
             except ValueError as e:
@@ -88,11 +89,11 @@ class AlgorithmChain(object):
 
         return response
 
-    def call_algorithm(self, algorithm, params, idx):
+    def call_algorithm(self, algorithm_name, params, idx):
         cl = self.chain_ledger
-        cd = self.chain_definition
+        algs = self.algs
         try:
-            this_def = cd[idx]
+            this_def = algs[idx]
         except IndexError:
             err = {
                 "parameter": '',
@@ -118,32 +119,34 @@ class AlgorithmChain(object):
                             index = -1
                         params[p] = temp_output_list[index]
 
-        import_str = '.' + algorithm.replace('/', '.') + '.main'
+        import_str = '.' + algorithm_name.replace('/', '.') + '.'
         try:
-            m = importlib.import_module(import_str, package='algorithms')
+            m = importlib.import_module(import_str + 'main', package='algorithms')
         except ImportError:
-            import_str = 'algorithms' + import_str
-            m = importlib.import_module(import_str, package=None)
+            m = importlib.import_module(import_str + algorithm_name, package='algorithms')
 
-        json_path = get_json_path(self.atk_path, algorithm)
-        return_value = m.Main(cl=cl, params=params).set_up(
-            algorithm, json_path)
+        try:
+            a_obj = getattr(m, 'Main')(cl, params)
+        except AttributeError:
+            a_obj = getattr(m, snake_to_camel(algorithm_name))(cl, params)
 
-        return return_value
+        return a_obj.run()
 
     def get_request_dict(self):
-        '''
+        """
         Return a dict containing all algorithms in the current chain and their
         default parameter values as if making a request to run a chain (e.g.:
         from a web form)
-        '''
-        request_dict = {}
-        request_dict['chain_name'] = self.chain_name
+        """
+        request_dict = {
+            'chain_name': self.chain_name
+        }
+
         cd = self.chain_definition
         temp_alg_list = []
         for alg in cd:
             a_name = alg['algorithm']
-            json_path = get_json_path(self.atk_path, a_name)
+            json_path = get_json_path(self.project_path, a_name)
             alg_def = get_algorithm(json_path)
             temp_alg = {}
             temp_alg['algorithm'] = a_name

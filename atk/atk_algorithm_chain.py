@@ -12,13 +12,14 @@ from atk import app
 
 class AtkAlgorithmChain(AlgorithmChain):
 
-    def __init__(self, path, passed_chain):
-        AlgorithmChain.__init__(self, path, passed_chain)
+    def __init__(self, project_path, chain_name, status_key):
+        super(AtkAlgorithmChain, self).__init__(project_path, chain_name)
         self.logger = app.logger
         self.config = app.config
+        self.status_key = status_key
 
-    def create_ledger(self, status_key):
-        self.chain_ledger = AtkChainLedger(status_key)
+    def create_ledger(self):
+        self.chain_ledger = AtkChainLedger(self.status_key)
         return self.chain_ledger
 
     def call_batch(self, iter_param, iter_type, iter_value):
@@ -73,7 +74,8 @@ class AtkAlgorithmChain(AlgorithmChain):
             temp_alg['parameters'][param] = i
             self.algs = copy.deepcopy(original_algs)
             try:
-                response = self.call_chain_algorithms()
+                # TODO we need params passed here
+                response = self.call_chain_algorithms(chain_params)
             except Exception as e:
                 message = str(type(e).__name__) + ':' + str(e.args)
                 self.logger.error(str(traceback.format_exc()))
@@ -104,8 +106,8 @@ class AtkAlgorithmChain(AlgorithmChain):
             save_path = os.path.join(
                 self.config['CHAIN_LEDGER_HISTORY_PATH'], save_fname)
         else:
-            make_dir_if_not_exists(os.path.join(self.atk_path, 'history'))
-            save_path = os.path.join(self.atk_path, 'history', save_fname)
+            make_dir_if_not_exists(os.path.join(self.project_path, 'history'))
+            save_path = os.path.join(self.project_path, 'history', save_fname)
 
         self.chain_ledger.save_json_to_file(
             batch_output, save_path, pretty=True)

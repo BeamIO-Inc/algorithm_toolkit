@@ -1,33 +1,39 @@
 from __future__ import division
 
+import inspect
 import json
+import os
 import re
 import logging
 
 import numpy as np
 
 from algorithm_toolkit.algorithm_exception import AlgorithmException
+from algorithm_toolkit.utils import camel_to_snake
 
 
-class Algorithm:
+class Algorithm(object):
 
     def __init__(self, cl=None, params=None, **kwargs):
         self.logger = logging.getLogger('algorithm_toolkit')
-        self.name = None
-        self.errors = []
-        self.params = params
-        self.cl = cl
 
-    def set_up(self, name, json_path):
-        self.name = name
+        self.cl = cl
+        self.params = params
+        self.errors = []
+
+        alg_dir = os.path.dirname(os.path.abspath(inspect.getfile(self.__class__)))
+        if self.__class__.__name__ == 'Main':
+            json_path = os.path.join(alg_dir, 'algorithm.json')
+        else:
+            json_path = os.path.join(alg_dir, camel_to_snake(self.__class__.__name__) + '.json')
 
         with open(json_path) as json_file:
             definition = json.load(json_file)
 
-        if self.check_params(definition):
-            return self.run()
-        else:
+        if not self.check_params(definition):
             self.raise_parameter_errors(self.errors)
+
+        self.name = definition['name']
 
     def custom_check(self, val, val2, check):
         if check == 'greaterthan' and val <= val2:
