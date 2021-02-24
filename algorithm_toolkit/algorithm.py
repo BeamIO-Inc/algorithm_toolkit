@@ -9,7 +9,7 @@ import logging
 import numpy as np
 
 from algorithm_toolkit.algorithm_exception import AlgorithmException
-from algorithm_toolkit.utils import camel_to_snake
+from algorithm_toolkit.utils import camel_to_snake, get_json_path
 
 
 class Algorithm(object):

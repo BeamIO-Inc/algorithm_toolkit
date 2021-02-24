@@ -2,7 +2,7 @@ from atk.atk_algorithm import AtkAlgorithm
 from atk.atk_chain_ledger import AtkChainLedger
 
 
-class Main(AtkAlgorithm):
+class ${subst}(AtkAlgorithm):
 
     def run(self):
         cl = self.cl  # type: AtkChainLedger

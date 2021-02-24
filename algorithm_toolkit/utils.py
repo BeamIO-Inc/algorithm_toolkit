@@ -53,9 +53,9 @@ def make_dir_if_not_exists(dir_to_create):
         os.makedirs(dir_to_create)
 
 
-def remove_folder(project_path):
-    if os.path.exists(project_path):
-        shutil.rmtree(project_path)
+def remove_folder(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
 
 
 def list_algorithms(project_path):
@@ -74,9 +74,9 @@ def list_algorithms(project_path):
     return sorted(installed_algs, key=lambda k: k['name'])
 
 
-def get_algorithm(project_path):
+def get_algorithm(json_path):
     try:
-        with open(project_path, 'r') as alg_file:
+        with open(json_path, 'r') as alg_file:
             try:
                 alg_def = json.load(alg_file)
             except ValueError:
@@ -137,9 +137,12 @@ def save_chain_files(project_path, chains):
             pass
 
 
-def get_json_path(project_path, a):
-    a = a.replace('\\', os.sep).replace('/', os.sep)
-    return os.path.join(project_path, 'algorithms', a, 'algorithm.json')
+def get_json_path(project_path, algorithm_name):
+    algorithm_name = algorithm_name.replace('\\', os.sep).replace('/', os.sep)
+    json_path = os.path.join(project_path, 'algorithms', algorithm_name, 'algorithm.json')
+    if not os.path.isfile(json_path):
+        json_path = os.path.join(project_path, 'algorithms', algorithm_name, algorithm_name + '.json')
+    return json_path
 
 
 def camel_to_snake(name):

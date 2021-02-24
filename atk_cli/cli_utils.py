@@ -4,22 +4,25 @@ import os
 # TODO verify if these are needed or if the matching methods in algorithm_toolkit.utils can be used
 
 
-def get_algorithm(path):
+def get_algorithm(json_path):
     try:
-        with open(path, 'r') as alg_file:
+        with open(json_path, 'r') as alg_file:
             alg_def = json.load(alg_file)
     except IOError:
         alg_def = {}
     return alg_def
 
 
-def get_json_path(path, a):
-    a = a.replace('\\', os.sep).replace('/', os.sep)
-    return os.path.join(path, 'algorithms', a, 'algorithm.json')
+def get_json_path(project_path, algorithm_name):
+    algorithm_name = algorithm_name.replace('\\', os.sep).replace('/', os.sep)
+    json_path = os.path.join(project_path, 'algorithms', algorithm_name, 'algorithm.json')
+    if not os.path.isfile(json_path):
+        json_path = os.path.join(project_path, 'algorithms', algorithm_name, algorithm_name + '.json')
+    return json_path
 
 
-def get_chain_def(path, chain_name=None):
-    chain_path = os.path.join(path, 'chains')
+def get_chain_def(project_path, chain_name=None):
+    chain_path = os.path.join(project_path, 'chains')
     chain_defs = {}
 
     for root, dirs, files in os.walk(chain_path):
@@ -45,8 +48,8 @@ def get_chain_def(path, chain_name=None):
         return chain_defs
 
 
-def clear_chains(path):
-    chain_path = os.path.join(path, 'chains')
+def clear_chains(project_path):
+    chain_path = os.path.join(project_path, 'chains')
 
     for root, dirs, files in os.walk(chain_path):
         for f in files:
@@ -56,10 +59,10 @@ def clear_chains(path):
                 pass
 
 
-def save_chain_files(path, chains):
+def save_chain_files(project_path, chains):
     for k, v in chains.items():
         try:
-            with open(os.path.join(path, 'chains', k + '.json'), 'w') as f:
+            with open(os.path.join(project_path, 'chains', k + '.json'), 'w') as f:
                 temp_json = {k: v}
                 json.dump(temp_json, f, indent=4, separators=(',', ': '))
         except IOError:

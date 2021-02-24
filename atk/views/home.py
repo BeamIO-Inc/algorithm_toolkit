@@ -354,16 +354,16 @@ def create_algorithm(algorithm=None):
         if not algorithm:
             os.makedirs(dest_path)
             shutil.copyfile(
-                os.path.join(source_path, 'main.txt'),
-                os.path.join(dest_path, 'main.py')
+                os.path.join(source_path, 'algorithm.txt'),
+                os.path.join(dest_path, algorithm + '.py')
             )
             shutil.copyfile(
                 os.path.join(source_path, '__init__.txt'),
                 os.path.join(dest_path, '__init__.py')
             )
             shutil.copyfile(
-                os.path.join(source_path, 'test.txt'),
-                os.path.join(dest_path, 'test.py')
+                os.path.join(source_path, 'test_algorithm.txt'),
+                os.path.join(dest_path, 'test' + algorithm + '.py')
             )
             save_license_file(source_path, dest_path, f['license'])
             write_readme()
@@ -480,7 +480,7 @@ def create_algorithm(algorithm=None):
                 if f['update_readme']:
                     write_readme()
 
-        with open(os.path.join(dest_path, 'algorithm.json'), 'w') as temp_file:
+        with open(get_json_path(project_path, algorithm), 'w') as temp_file:
             temp_file.writelines(
                 json.dumps(
                     temp_alg,
@@ -549,7 +549,7 @@ def copy_algorithm(algorithm):
         new_alg = algorithm + '_copy' + str(alg_iterator)
     dest_path = os.path.join(project_path, 'algorithms', new_alg)
     shutil.copytree(source_path, dest_path)
-    this_alg = os.path.join(dest_path, 'algorithm.json')
+    this_alg = get_json_path(project_path, new_alg)
     temp_alg = get_algorithm(this_alg)
     temp_alg['name'] = new_alg
     with open(this_alg, 'w') as temp_file:

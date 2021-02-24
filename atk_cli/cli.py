@@ -22,6 +22,8 @@ from .cli_utils import (
     save_chain_files
 )
 
+from algorithm_toolkit.utils import snake_to_camel
+
 
 this_path = os.path.dirname(os.path.abspath(__file__))
 default_registry_url = 'https://algorithmcentral.com'
@@ -120,17 +122,17 @@ def ca_cmd(algorithm_name):
     Create an algorithm.
     '''
 
-    path = os.path.dirname(os.path.abspath('config.py'))
-    dest_path = os.path.join(path, 'algorithms', algorithm_name)
+    project_path = os.path.dirname(os.path.abspath('config.py'))
+    dest_path = os.path.join(project_path, 'algorithms', algorithm_name)
 
     try:
         os.mkdir(dest_path)
     except OSError:
         return click.echo('Algorithm already exists!')
 
-    create_file(algorithm_name, this_path, dest_path, 'main')
+    create_file(algorithm_name, this_path, dest_path, algorithm_name, input_name='algorithm')
     create_file(algorithm_name, this_path, dest_path, '__init__')
-    create_file(algorithm_name, this_path, dest_path, 'test')
+    create_file(algorithm_name, this_path, dest_path, 'test_' + algorithm_name, input_name='test_algorithm')
 
     alg_json = {
         'name': algorithm_name,
@@ -264,7 +266,7 @@ def ca_cmd(algorithm_name):
         with open(os.path.join(dest_path, 'LICENSE'), 'w') as temp_file:
             temp_file.write('')
 
-    with open(os.path.join(dest_path, 'algorithm.json'), 'w') as temp_file:
+    with open(get_json_path(project_path, algorithm_name), 'w') as temp_file:
         temp_file.writelines(
             json.dumps(
                 alg_json, indent=4, separators=(',', ': '), sort_keys=True))
@@ -297,8 +299,11 @@ def generate_settings_cmd(production):
     click.echo('Settings files generated!')
 
 
-def create_file(subst, source, dest, name, ext='.py'):
-    with open(os.path.join(source, 'sources', name + '.txt')) as f:
+def create_file(subst, source, dest, name, ext='.py', input_name=None):
+    if not input_name:
+        input_name = name
+
+    with open(os.path.join(source, 'sources', input_name + '.txt')) as f:
         contents = f.read()
     if ext == '.':
         full_name = '.' + name
@@ -307,6 +312,8 @@ def create_file(subst, source, dest, name, ext='.py'):
     with open(os.path.join(dest, full_name), 'w') as temp_file:
         s = Template(contents)
         if subst != '':
+            if input_name == 'algorithm' or input_name == 'test_algorithm':
+                subst = snake_to_camel(subst)
             contents = s.substitute(subst=subst)
         temp_file.writelines(contents)
 
@@ -395,8 +402,10 @@ def publish_algorithm_cmd(algorithm_name, registry):
     a_name = algorithm_name.replace('\\', os.sep).replace('/', os.sep)
     alg_path = os.path.join(os.getcwd(), 'algorithms', a_name)
 
+    project_path = os.path.join(os.getcwd())
+
     try:
-        with open(os.path.join(alg_path, 'algorithm.json')) as alg_file:
+        with open(get_json_path(project_path, algorithm_name), 'r') as alg_file:
             alg_def = alg_file.read()
     except IOError:
         return click.echo('Algorithm not found!')
