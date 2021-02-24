@@ -48,6 +48,7 @@ from atk.utils import (
     process_chain_request
 )
 from atk_cli.cli import do_uninstall
+from atk_cli.utils import create_file
 
 from . import home
 
@@ -260,7 +261,7 @@ def algorithms():
 @home.route('/algorithms/create/<path:algorithm>/', methods=['GET', 'POST'])
 @debug_only(app.config)
 def create_algorithm(algorithm=None):
-    if algorithm is not None:
+    if algorithm:
         a_path = get_json_path(project_path, algorithm)
         this_alg = get_algorithm(a_path)
         if this_alg == {}:
@@ -344,7 +345,7 @@ def create_algorithm(algorithm=None):
         dest_path = os.path.join(project_path, 'algorithms', temp_alg['name'])
         source_path = os.path.dirname(os.path.abspath(__file__))
         source_path = os.path.abspath(os.path.join(
-            source_path, os.pardir, os.pardir, 'cli', 'sources'))
+            source_path, os.pardir, os.pardir, 'atk_cli', 'sources'))
 
         def write_readme():
             with open(os.path.join(dest_path, 'README.md'), 'w') as temp_file:
@@ -353,18 +354,11 @@ def create_algorithm(algorithm=None):
 
         if not algorithm:
             os.makedirs(dest_path)
-            shutil.copyfile(
-                os.path.join(source_path, 'algorithm.txt'),
-                os.path.join(dest_path, algorithm + '.py')
-            )
-            shutil.copyfile(
-                os.path.join(source_path, '__init__.txt'),
-                os.path.join(dest_path, '__init__.py')
-            )
-            shutil.copyfile(
-                os.path.join(source_path, 'test_algorithm.txt'),
-                os.path.join(dest_path, 'test' + algorithm + '.py')
-            )
+
+            create_file(temp_alg['name'], source_path, dest_path, temp_alg['name'], input_name='algorithm')
+            create_file(temp_alg['name'], source_path, dest_path, '__init__')
+            create_file(temp_alg['name'], source_path, dest_path, 'test_' + temp_alg['name'], input_name='test_algorithm')
+
             save_license_file(source_path, dest_path, f['license'])
             write_readme()
         else:
@@ -381,6 +375,7 @@ def create_algorithm(algorithm=None):
                         os.path.join(source_path, '__init__.txt'),
                         os.path.join(new_dest_root, '__init__.py')
                     )
+
                 os.rename(old_dest_path, new_dest_path)
                 dest_path = new_dest_path
 
@@ -480,7 +475,12 @@ def create_algorithm(algorithm=None):
                 if f['update_readme']:
                     write_readme()
 
-        with open(get_json_path(project_path, algorithm), 'w') as temp_file:
+        if algorithm:
+            json_path = get_json_path(project_path, algorithm)
+        else:
+            json_path = os.path.join(dest_path, temp_alg['name'] + '.json')
+
+        with open(json_path, 'w') as temp_file:
             temp_file.writelines(
                 json.dumps(
                     temp_alg,

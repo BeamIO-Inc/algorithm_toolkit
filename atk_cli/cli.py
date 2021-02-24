@@ -11,19 +11,17 @@ import unittest
 import jinja2
 
 from io import BytesIO
-from string import Template
+
 from tabulate import tabulate
 from zipfile import ZipFile
 
-from .cli_utils import (
+from .utils import (
     get_json_path,
     get_algorithm,
     get_chain_def,
-    save_chain_files
+    save_chain_files,
+    create_file
 )
-
-from algorithm_toolkit.utils import snake_to_camel
-
 
 this_path = os.path.dirname(os.path.abspath(__file__))
 default_registry_url = 'https://algorithmcentral.com'
@@ -297,25 +295,6 @@ def generate_settings_cmd(production):
     else:
         generate_settings(this_path, path)
     click.echo('Settings files generated!')
-
-
-def create_file(subst, source, dest, name, ext='.py', input_name=None):
-    if not input_name:
-        input_name = name
-
-    with open(os.path.join(source, 'sources', input_name + '.txt')) as f:
-        contents = f.read()
-    if ext == '.':
-        full_name = '.' + name
-    else:
-        full_name = name + ext
-    with open(os.path.join(dest, full_name), 'w') as temp_file:
-        s = Template(contents)
-        if subst != '':
-            if input_name == 'algorithm' or input_name == 'test_algorithm':
-                subst = snake_to_camel(subst)
-            contents = s.substitute(subst=subst)
-        temp_file.writelines(contents)
 
 
 def generate_settings(this_path, path, is_prod=False):

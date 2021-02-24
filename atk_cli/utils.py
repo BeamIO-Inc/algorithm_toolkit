@@ -1,6 +1,10 @@
 import json
 import os
 
+from string import Template
+
+from algorithm_toolkit.utils import snake_to_camel
+
 # TODO verify if these are needed or if the matching methods in algorithm_toolkit.utils can be used
 
 
@@ -67,3 +71,22 @@ def save_chain_files(project_path, chains):
                 json.dump(temp_json, f, indent=4, separators=(',', ': '))
         except IOError:
             pass
+
+
+def create_file(subst, source, dest, name, ext='.py', input_name=None):
+    if not input_name:
+        input_name = name
+
+    with open(os.path.join(source, input_name + '.txt')) as f:
+        contents = f.read()
+    if ext == '.':
+        full_name = '.' + name
+    else:
+        full_name = name + ext
+    with open(os.path.join(dest, full_name), 'w') as temp_file:
+        s = Template(contents)
+        if subst != '':
+            if input_name == 'algorithm' or input_name == 'test_algorithm':
+                subst = snake_to_camel(subst)
+            contents = s.substitute(subst=subst)
+        temp_file.writelines(contents)

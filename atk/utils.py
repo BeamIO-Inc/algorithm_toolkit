@@ -1,5 +1,6 @@
 import json
 import os
+
 import distro
 import pkg_resources
 import platform
