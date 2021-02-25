@@ -15,5 +15,7 @@ dependencies:
     - psutil
     - python-dotenv
     - requests
+    - sphinx
+    - sphinx_rtd_theme
     - tabulate
     - psutil
