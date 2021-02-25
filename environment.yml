@@ -1,4 +1,4 @@
-name: atk
+name: atk-dev
 channels:
   - defaults
 dependencies:
