@@ -745,3 +745,61 @@ def shell(args):
         os.mkdir(os.path.join(path, 'logs'))
 
     subprocess.call(['flask', 'shell'] + list(args))
+
+
+@cli.command('update_project', context_settings=dict(ignore_unknown_options=True))
+@click.argument('args', nargs=-1, type=click.UNPROCESSED, required=False)
+def update_project(args):
+    '''
+    Update your atk<1.0 project to the newest framework
+    '''
+    project_path = os.getcwd()
+    source_path = os.path.join(this_path, 'sources')
+
+    if click.confirm('Update config.py and run.py?\n'
+                     'This will replace your current files with versions compatible with the new framework.'):
+        create_file('', source_path, project_path, 'config')
+        create_file('', source_path, project_path, 'run')
+
+    chains_json_path = os.path.join(project_path, 'chains.json')
+    chains_folder_path = os.path.join(project_path, 'chains')
+
+    if os.path.isfile(chains_json_path) and not os.path.isdir(chains_folder_path) and \
+            click.confirm('Update to new chain format?\n'
+                          'This will replace chains.json with a chains folder of individual json files.'):
+        os.mkdir(chains_folder_path)
+
+        with open(chains_json_path, 'r') as old_chain:
+            chain_defs = json.load(old_chain)
+
+        for chain_name, chain in chain_defs.items():
+            new_chain_file = os.path.join(chains_folder_path, chain_name + '.json')
+
+            with open(new_chain_file, 'w') as new_chain:
+                json.dump({chain_name: chain}, new_chain, indent=4, separators=(',', ': '))
+
+        os.remove(chains_json_path)
+
+    if click.confirm('Update algorithm imports?\n'
+                     'This will modify the main.py of each installed algorithm to use new library imports.'):
+        algorithms_path = os.path.join(project_path, 'algorithms')
+        algorithms = next(os.walk(algorithms_path))[1]
+
+        for algorithm in algorithms:
+            main_path = os.path.join(algorithms_path, algorithm, 'main.py')
+
+            if os.path.isfile(main_path):
+                with open(main_path, 'r') as f:
+                    data = f.read()
+
+                data = data.replace('from algorithm_toolkit import Algorithm',
+                                    'from atk.atk_algorithm import AtkAlgorithm')
+                data = data.replace('from algorithm_toolkit import AlgorithmChain',
+                                    'from atk.atk_algorithm_chain import AtkAlgorithmChain')
+                data = data.replace('from algorithm_toolkit import AlgorithmChainLedger',
+                                    'from atk.atk_chain_ledger import AtkChainLedger')
+                data = data.replace('class Main(Algorithm)', 'class Main(AtkAlgorithm)')
+                data = data.replace('# type: AlgorithmChain.ChainLedger', '# type: AtkAlgorithmChain.AtkChainLedger')
+
+                with open(main_path, 'w') as f:
+                    f.write(data)
