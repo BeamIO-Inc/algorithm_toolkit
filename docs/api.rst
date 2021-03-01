@@ -6,6 +6,8 @@ API
 
 This page documents the inheritable classes provided by the ATK, and their various attributes and public functions.
 
+.. module:: algorithm_toolkit.algorithm
+
 .. class:: Algorithm([cl=None[, params=None]])
 
     :param ChainLedger cl: ChainLedger object instantiation
@@ -26,6 +28,8 @@ This page documents the inheritable classes provided by the ATK, and their vario
 
         Raise an error to the calling application, such as a web browser.
 
+.. module:: algorithm_toolkit.algorithm_chain
+
 .. class:: AlgorithmChain(path, passed_chain)
 
     :param string atk_path: Folder location for the current algorithm project
@@ -38,85 +42,93 @@ This page documents the inheritable classes provided by the ATK, and their vario
 
         Return a dict containing all algorithms in the current chain and their default parameter values as if making a request to run a chain (e.g.: from a web form).
 
-    .. class:: ChainLedger(status_key)
+.. module:: algorithm_toolkit.chain_ledger
 
-        :param string status_key: Unique ID for chain run, used for obtaining status and history
-        :param dict metadata: key, value pairs placed on the Check Ledger by algorithms
-        :param list history: array of metadata, ordered by chain run order
-        :param int chain_percent: percent progress of chain run
-        :param int batch_percent: percent progress of batch run
+.. class:: ChainLedger(status_key)
 
-        .. function:: add_to_metadata(key, value)
+    :param string status_key: Unique ID for chain run, used for obtaining status and history
+    :param dict metadata: key, value pairs placed on the Check Ledger by algorithms
+    :param list history: array of metadata, ordered by chain run order
+    :param int chain_percent: percent progress of chain run
+    :param int batch_percent: percent progress of batch run
 
-            :param string key: metadata key used for later retrieval
-            :param any value: value to be saved with the key
+    .. function:: add_to_metadata(key, value)
 
-            Add a key, value pair to the Chain Ledger
+        :param string key: metadata key used for later retrieval
+        :param any value: value to be saved with the key
 
-        .. function:: get_from_metadata(key)
+        Add a key, value pair to the Chain Ledger
 
-            :param string key: metadata key used to retrieve the item
-            :returns: value of key in metadata
-            :return type: any
+    .. function:: get_from_metadata(key)
 
-            Return a value placed in Chain Ledger metadata under *key*.
+        :param string key: metadata key used to retrieve the item
+        :returns: value of key in metadata
+        :return type: any
 
-        .. function:: get_from_history(history_index, key)
+        Return a value placed in Chain Ledger metadata under *key*.
 
-            :param int history_index: position in the Chain Ledger history for the algorithm sought
-            :param string key: key to be located in metadata
-            :returns: value in metadata history under key
-            :return type: any
+    .. function:: get_from_history(history_index, key)
 
-            Search the Chain Ledger history for a key in metadata, based on the index of the algorithm in the history list.
+        :param int history_index: position in the Chain Ledger history for the algorithm sought
+        :param string key: key to be located in metadata
+        :returns: value in metadata history under key
+        :return type: any
 
-        .. function:: search_history(key, algorithm_name)
+        Search the Chain Ledger history for a key in metadata, based on the index of the algorithm in the history list.
 
-            :param string key: key to search for
-            :param string algorithm_name: name of algorithm to to find in history
-            :returns: a set of items matching the algorithm, key pair
-            :return type: list
+    .. function:: search_history(key, algorithm_name)
 
-            Search the history for a particular metadata key coming from an algorithm, however many times it occurs.
+        :param string key: key to search for
+        :param string algorithm_name: name of algorithm to to find in history
+        :returns: a set of items matching the algorithm, key pair
+        :return type: list
 
-        .. function:: is_algo_in_history(algorithm_name)
+        Search the history for a particular metadata key coming from an algorithm, however many times it occurs.
 
-            :param string algorithm_name: name of algorithm to search
-            :return type: boolean
+    .. function:: is_algo_in_history(algorithm_name)
 
-            Return True if algorithm name appears in the history, otherwise return False.
+        :param string algorithm_name: name of algorithm to search
+        :return type: boolean
 
-        .. function:: set_status(status[, percent=0])
+        Return True if algorithm name appears in the history, otherwise return False.
 
-            :param string status: status message for calling application
+    .. function:: set_status(status[, percent=0])
 
-            Set a key in app.config with the Chain Ledger status_key as its name, and create a dictionary of status information, setting the app.config[key] value equal to that dictionary. Example::
+        :param string status: status message for calling application
 
-                {
-                    "all_msg": "",
-                    "latest_msg": "",
-                    "algorithm_percent_complete": 0,
-                    "chain_percent_complete": 0,
-                    "batch_percent_complete": 0
-                }
+        Set a key in app.config with the Chain Ledger status_key as its name, and create a dictionary of status information, setting the app.config[key] value equal to that dictionary. Example::
 
-        .. function:: get_results_folder()
+            {
+                "all_msg": "",
+                "latest_msg": "",
+                "algorithm_percent_complete": 0,
+                "chain_percent_complete": 0,
+                "batch_percent_complete": 0
+            }
 
-            :returns: location of results folder
-            :return type: string
+    .. function:: get_results_folder()
 
-            Provide the location of the results folder for files to be saved during an algorithm chain run
+        :returns: location of results folder
+        :return type: string
 
-        .. function:: get_temp_folder()
+        Provide the location of the results folder for files to be saved during an algorithm chain run
 
-            :returns: location of temp folder
-            :return type: string
+    .. function:: get_temp_folder()
 
-            Provide the location of the temp folder for files to be saved during an algorithm chain run. These files will be deleted at the end of the chain run.
+        :returns: location of temp folder
+        :return type: string
 
-        .. function:: clear_temp_folder()
+        Provide the location of the temp folder for files to be saved during an algorithm chain run. These files will be deleted at the end of the chain run.
 
-            Delete all files and folders within the chain temp folder
+    .. function:: clear_temp_folder()
+
+        Delete all files and folders within the chain temp folder
+
+.. module:: algorithm_toolkit.algorithm_exception
+
+.. class:: AlgorithmException()
+
+    Inherits from ``Exception``.
 
 .. class:: AlgorithmTestCase()
 
