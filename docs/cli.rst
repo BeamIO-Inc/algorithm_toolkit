@@ -279,4 +279,6 @@ Syntax::
       Update your atk<1.0 project to the newest framework
 
     Options:
+
       --help  Show this message and exit.
+
