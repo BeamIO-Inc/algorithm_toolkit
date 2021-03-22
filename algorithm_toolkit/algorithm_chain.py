@@ -120,14 +120,23 @@ class AlgorithmChain(object):
                         params[p] = temp_output_list[index]
 
         import_str = '.' + algorithm_name.replace('/', '.') + '.'
+
+        imported = True
         try:
             m = importlib.import_module(import_str + 'main', package='algorithms')
-        except ImportError:
+        except:
+            imported = False
+
+        if not imported:
             m = importlib.import_module(import_str + algorithm_name, package='algorithms')
 
+        created = True
         try:
             a_obj = getattr(m, 'Main')(cl, params)
-        except AttributeError:
+        except:
+            created = False
+        
+        if not created:
             a_obj = getattr(m, snake_to_camel(algorithm_name))(cl, params)
 
         return a_obj.run()
@@ -142,9 +151,8 @@ class AlgorithmChain(object):
             'chain_name': self.chain_name
         }
 
-        cd = self.chain_definition
         temp_alg_list = []
-        for alg in cd:
+        for alg in self.algs:
             a_name = alg['algorithm']
             json_path = get_json_path(self.project_path, a_name)
             alg_def = get_algorithm(json_path)
