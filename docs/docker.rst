@@ -117,7 +117,7 @@ Volume mounting allows our container to store our work on a directory on our loc
 
 This way, if something happens to our container, we will maintain all of the work we have done.
 
-* You can learn more about volume mounting `here <https://docs.docker.com/storage/volumes/>`_.
+* You can learn more about volume mounting `here <https://docs.docker.com/storage/volumes/>`__.
 
 Volume mounting is defined when running the atk-dev Docker image:
 
