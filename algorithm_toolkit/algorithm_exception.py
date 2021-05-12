@@ -1,0 +1,2 @@
+class AlgorithmException(Exception):
+    pass

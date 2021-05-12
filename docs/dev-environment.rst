@@ -1,4 +1,4 @@
-.. dev-environment:
+.. _dev-environment:
 
 ===============================
 The ATK Development Environment
@@ -43,7 +43,7 @@ When you use `alg run` from a Terminal window, you will see lines like the follo
      * Debugger is active!
      * Debugger PIN: 225-327-370
 
-If you've worked with the web microframework `Flask <http://flask.pocoo.org/docs/1.0/>`_, this will look familiar. Each algorithm project is a Flask app.
+If you've worked with the web microframework `Flask <http://flask.pocoo.org/docs/1.0/>`__, this will look familiar. Each algorithm project is a Flask app.
 
 Here's what's happening:
 

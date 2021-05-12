@@ -12,7 +12,7 @@ setup(
         "developers to develop and share algorithms related to "
         "geospatial data and imagery."
     ),
-    packages=find_packages(),
+    packages=find_packages(include=['algorithm_toolkit', 'atk', 'atk.views', 'atk_cli']),
     include_package_data=True,
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -33,7 +33,7 @@ setup(
         'psutil'
     ],
     entry_points={
-        'console_scripts': ['alg=cli.cli:cli']
+        'console_scripts': ['alg=atk_cli.cli:cli']
     },
     project_urls={
         "Documentation":

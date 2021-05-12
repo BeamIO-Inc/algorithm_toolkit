@@ -1,0 +1,13 @@
+from atk.atk_algorithm import AtkAlgorithm
+from atk.atk_chain_ledger import AtkChainLedger
+
+
+class ${subst}(AtkAlgorithm):
+
+    def run(self):
+        cl = self.cl  # type: AtkChainLedger
+        params = self.params  # type: dict
+        # Add your algorithm code here
+
+        # Do not edit below this line
+        return cl

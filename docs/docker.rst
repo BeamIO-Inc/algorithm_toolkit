@@ -24,7 +24,7 @@ Visit `here <https://docs.docker.com/develop/develop-images/baseimages/>`__ to l
 Running the atk Docker image (Optional)
 =====================================================
 
-In theory, a user could work purely with this Docker image, however, see `example-project <https://github.com/BeamIO-Inc/algorithm_toolkit/tree/master/cli/examples/project>`_ for its intended use.
+In theory, a user could work purely with this Docker image, however, see `example-project <https://github.com/BeamIO-Inc/algorithm_toolkit/tree/master/cli/examples/project>`__ for its intended use.
 
 The following command can then be used to run this Docker image:
 
@@ -50,7 +50,7 @@ With this requirement satisfied, you can proceed with the build:
 
     $ docker build -t atk-dev -f ./docker/atk-dev/Dockerfile .
 
-This Docker image contains the contents in the atk image, and the `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/getting_started/overview.html>`_ web based user interface.
+This Docker image contains the contents in the atk image, and the `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/getting_started/overview.html>`__ web based user interface.
 
 Running the atk-dev Docker image
 ==============================================

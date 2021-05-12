@@ -46,7 +46,7 @@ with warnings.catch_warnings():
 class ATKTestCase(TestCase):
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
@@ -69,7 +69,7 @@ class ATKTestCase(TestCase):
                 'https://tdprocess.com'
             ]
         )
-        self.assertEqual(config['ATK_PATH'], test_alg_path)
+        self.assertEqual(config['ATK_PROJECT_PATH'], test_alg_path)
         self.assertEqual(
             self.app.jinja_loader.searchpath[0], test_alg_path + '/templates')
 
@@ -261,7 +261,7 @@ class ATKTestCase(TestCase):
         ) + '\n')
 
     def test_create_algorithms_get(self):
-        from algorithm_toolkit.forms import (
+        from atk.forms import (
             AlgorithmCreateForm,
             AlgorithmOutputForm,
             AlgorithmParameterForm
@@ -336,7 +336,7 @@ class ATKTestCase(TestCase):
             json.loads(form.outputs.data), json.loads(data['outputs']))
 
     def test_edit_algorithms_get(self):
-        from algorithm_toolkit.forms import (
+        from atk.forms import (
             AlgorithmCreateForm,
             AlgorithmOutputForm,
             AlgorithmParameterForm
@@ -1587,7 +1587,7 @@ class ATKTestCase(TestCase):
 class ATKTestCaseWithDocs(TestCase):
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
@@ -1617,7 +1617,7 @@ class ATKTestCaseTestAlgorithm(TestCase):
     p_submit = {}
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
@@ -1651,7 +1651,7 @@ class ATKTestCaseTestAlgorithm(TestCase):
         pass
 
     def checkit(self, p, d):
-        from algorithm_toolkit import Algorithm
+        from atk import Algorithm
         algorithm = Algorithm(test_alg_path, p)
         valid = algorithm.check_params(d)
         response = {
@@ -1954,11 +1954,11 @@ class ATKTestCaseTestAlgorithmChain(TestCase):
     alg_data = {}
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
-        from algorithm_toolkit import AlgorithmChain
+        from atk import AlgorithmChain
         self.test_chain = get_chains()['map_tiles']
         self.ac = AlgorithmChain(test_alg_path, get_test_run_chain())
         self.cl = self.ac.ChainLedger('tim')
@@ -2147,7 +2147,7 @@ class ATKTestCaseTestAlgorithmChain(TestCase):
         )
         sys.path.append(test_alg_path)
         subprocess.call(['alg', 'cp', 'test_project', '-e', '-q'])
-        from algorithm_toolkit import AlgorithmChain
+        from atk import AlgorithmChain
         self.ac = AlgorithmChain(test_alg_path, get_test_run_chain())
         self.cl = self.ac.ChainLedger('tim')
 
@@ -2225,7 +2225,7 @@ class ATKTestCaseTestAlgorithmChain(TestCase):
 class ATKTestCaseFileUtils(TestCase):
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
@@ -2235,7 +2235,7 @@ class ATKTestCaseFileUtils(TestCase):
         pass
 
     def test_make_dir_if_not_exists(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print('Ensure we can create multiple folders if needed')
         test_dir = 'test_project/algorithms'
         utils.file_utils.make_dir_if_not_exists(test_dir)
@@ -2249,7 +2249,7 @@ class ATKTestCaseFileUtils(TestCase):
         self.assertFalse(os.path.exists(test_dir))
 
     def test_get_algorithms_valueerror(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print(
             'Ensure ValueError conditions are handled when '
             'getting an algorithm definition'
@@ -2262,7 +2262,7 @@ class ATKTestCaseFileUtils(TestCase):
         os.remove('testalgorithm.json')
 
     def test_get_chain_def_valueerror(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print(
             'Ensure ValueError conditions are handled when '
             'getting a chain definition'
@@ -2277,7 +2277,7 @@ class ATKTestCaseFileUtils(TestCase):
         shutil.rmtree(test_alg_path)
 
     def test_get_chain_def_ioerror(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print(
             'Ensure IOError conditions are handled when '
             'getting a chain definition'
@@ -2289,7 +2289,7 @@ class ATKTestCaseFileUtils(TestCase):
 class ATKTestCaseDataUtils(TestCase):
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):
@@ -2299,13 +2299,13 @@ class ATKTestCaseDataUtils(TestCase):
         pass
 
     def test_text2int_not_in_mapping(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print('Return -1 if text is not found in word_to_number_mapping')
         response = utils.data_utils.text2int('deadparrot')
         self.assertEqual(response, -1)
 
     def test_create_random_string_all_chars(self):
-        from algorithm_toolkit import utils
+        from atk import utils
         print(
             'If desired, random string can include symbols '
             '(i.e.: not just http-safe characters)'
@@ -2324,7 +2324,7 @@ class ATKTestCaseDataUtils(TestCase):
 class ATKTestCaseDecorators(TestCase):
 
     def create_app(self):
-        from algorithm_toolkit import app
+        from atk import app
         return app
 
     def setUp(self):

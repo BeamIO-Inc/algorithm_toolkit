@@ -39,6 +39,7 @@ If you type ``alg`` by itself, you'll get the help message:
       shell
       test               Test algorithms in your project.
       uninstall          Remove an algorithm from your project.
+      update_project     Update your atk<1.0 project to the newest framework
 
 The ``--help`` or ``-h`` option will also display this message. Using ``--help`` with a command will display help for that command; e.g.::
 
@@ -266,12 +267,18 @@ Syntax::
     Options:
       -h, --help  Show this message and exit.
 
+update_project
+--------------
 
+Update the current project for use with the newest Algorithm Toolkit framework.
 
+Syntax::
 
+    Usage: alg update_project
 
+      Update your atk<1.0 project to the newest framework
 
+    Options:
 
-
-
+      --help  Show this message and exit.
 

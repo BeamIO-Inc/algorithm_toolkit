@@ -1,7 +1,7 @@
-include algorithm_toolkit/templates/*
-recursive-include algorithm_toolkit/static *
-recursive-include cli/examples/project *
-include cli/sources/*
+include atk/templates/*
+recursive-include atk/static *
+recursive-include atk_cli/examples/project *
+include atk_cli/sources/*
 include docs/*.rst
 include docs/Makefile
 include docs/conf.py

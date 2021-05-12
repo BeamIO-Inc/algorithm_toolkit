@@ -108,4 +108,4 @@ ENV/
 scratchpad
 
 .idea
-!cli/examples/project/logs/app.log
+!atk_cli/examples/project/logs/app.log
