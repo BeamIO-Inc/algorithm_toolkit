@@ -1,0 +1,21 @@
+name: atk-dev
+channels:
+  - defaults
+dependencies:
+  - pip=20.3
+  - python=3.9
+  - pip:
+    - configparser
+    - distro
+    - flask>=1.0
+    - flask-cors
+    - flask_wtf
+    - inflect
+    - numpy
+    - psutil
+    - python-dotenv
+    - requests
+    - sphinx
+    - sphinx_rtd_theme
+    - tabulate
+    - psutil
